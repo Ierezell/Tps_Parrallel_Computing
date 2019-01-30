@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/1-count-race.c
+stdlib.h
+-
+stdio.h
+-
+pthread.h
+-
+

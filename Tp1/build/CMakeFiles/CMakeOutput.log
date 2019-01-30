@@ -1,0 +1,73 @@
+The system is: Linux - shell-init : erreur de détermination du répertoire actuel : getcwd : ne peut accéder aux répertoires parents : Aucun fichier ou dossier de ce type
+4.20.3-arch1-1-ARCH - shell-init : erreur de détermination du répertoire actuel : getcwd : ne peut accéder aux répertoires parents : Aucun fichier ou dossier de ce type
+x86_64
+Determining if the C compiler works passed with the following output:
+Change Dir: /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_3534b/fast"
+/usr/bin/make -f CMakeFiles/cmTC_3534b.dir/build.make CMakeFiles/cmTC_3534b.dir/build
+make[1] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_3534b.dir/testCCompiler.c.o
+/usr/bin/gcc    -o CMakeFiles/cmTC_3534b.dir/testCCompiler.c.o   -c /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTC_3534b
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3534b.dir/link.txt --verbose=1
+/usr/bin/gcc      CMakeFiles/cmTC_3534b.dir/testCCompiler.c.o  -o cmTC_3534b 
+make[1] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp »
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_b8ce8/fast"
+/usr/bin/make -f CMakeFiles/cmTC_b8ce8.dir/build.make CMakeFiles/cmTC_b8ce8.dir/build
+make[1] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_b8ce8.dir/CMakeCCompilerABI.c.o
+/usr/bin/gcc    -o CMakeFiles/cmTC_b8ce8.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-3.13/Modules/CMakeCCompilerABI.c
+Linking C executable cmTC_b8ce8
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b8ce8.dir/link.txt --verbose=1
+/usr/bin/gcc      CMakeFiles/cmTC_b8ce8.dir/CMakeCCompilerABI.c.o  -o cmTC_b8ce8 
+make[1] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp »
+
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_a87f8/fast"
+/usr/bin/make -f CMakeFiles/cmTC_a87f8.dir/build.make CMakeFiles/cmTC_a87f8.dir/build
+make[1] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp »
+Building CXX object CMakeFiles/cmTC_a87f8.dir/testCXXCompiler.cxx.o
+/usr/bin/g++     -o CMakeFiles/cmTC_a87f8.dir/testCXXCompiler.cxx.o -c /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_a87f8
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a87f8.dir/link.txt --verbose=1
+/usr/bin/g++       CMakeFiles/cmTC_a87f8.dir/testCXXCompiler.cxx.o  -o cmTC_a87f8 
+make[1] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp »
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_7b728/fast"
+/usr/bin/make -f CMakeFiles/cmTC_7b728.dir/build.make CMakeFiles/cmTC_7b728.dir/build
+make[1] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp »
+Building CXX object CMakeFiles/cmTC_7b728.dir/CMakeCXXCompilerABI.cpp.o
+/usr/bin/g++     -o CMakeFiles/cmTC_7b728.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.13/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTC_7b728
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7b728.dir/link.txt --verbose=1
+/usr/bin/g++       CMakeFiles/cmTC_7b728.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_7b728 
+make[1] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp »
+
+
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_1ca31/fast"
+/usr/bin/make -f CMakeFiles/cmTC_1ca31.dir/build.make CMakeFiles/cmTC_1ca31.dir/build
+make[1] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_1ca31.dir/CheckIncludeFile.c.o
+/usr/bin/gcc    -o CMakeFiles/cmTC_1ca31.dir/CheckIncludeFile.c.o   -c /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_1ca31
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1ca31.dir/link.txt --verbose=1
+/usr/bin/gcc      CMakeFiles/cmTC_1ca31.dir/CheckIncludeFile.c.o  -o cmTC_1ca31 
+make[1] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp1/build/CMakeFiles/CMakeTmp »
+
+
