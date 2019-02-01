@@ -1,1 +1,0 @@
-/usr/bin/gcc    CMakeFiles/1-count-race.dir/1-count-race.c.o  -o 1-count-race -pthread 
