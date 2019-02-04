@@ -5,5 +5,5 @@
 
 void salutation(){
     //cout << "coucou" << endl;
-    printf("coucou");
+    printf("coucou\n");
 }
