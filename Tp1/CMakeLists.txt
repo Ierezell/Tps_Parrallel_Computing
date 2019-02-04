@@ -22,13 +22,17 @@ add_library(get_prime
             src/get_prime.c
             src/get_prime.h
             )
+add_library(check_prime
+            src/check_prime.cpp
+            src/check_prime.hpp
+            )
 #file(GLOB_RECURSE SOURCES src/*.c)
 #add_library(get_prime STATIC ${SOURCES})
 
 # Main program to be compiled
 add_executable(Tp1_Sebastien_Pierre src/main.cpp)
 # Libraries to link for the main program
-target_link_libraries (Tp1_Sebastien_Pierre ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp get_prime)
+target_link_libraries (Tp1_Sebastien_Pierre ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp check_prime)
 #target_compile_options(Tp1_Sebastien_Pierre PRIVATE -lgmpxx)
 #target_compile_options(Tp1_Sebastien_Pierre PRIVATE -lgmp)
 #target_compile_options(Tp1_Sebastien_Pierre PRIVATE -pthread )

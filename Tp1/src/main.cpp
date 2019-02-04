@@ -6,8 +6,7 @@
 #include <typeinfo>
 #include <gmp.h>
 #include <stdio.h>
-
-//#include "get_prime.hpp"
+#include "check_prime.hpp"
 extern "C"
 {
 #include "get_prime.h"
@@ -26,32 +25,57 @@ int main(int argc, char *argv[])
     prime_nb_file.open(argv[2]);
     string line;
     mpz_t interbas, interhaut;
-    mpz_init(interbas);
-    mpz_init(interhaut);
+    mpz_t nb;
+    mpz_t inc;
+    mpz_inits(interbas, interhaut, nb, inc, NULL);
+    mpz_set_str(inc, "1", 10);
+
     //salutation();
     if (prime_nb_file.is_open())
     {
         while (getline(prime_nb_file, line))
         {
-            cout << "coucou" << endl;
-            cout << "j'ai la ligne  " << line << endl;
-            //stringstream linestream(line);
-            //cout << line << endl;
-            // mpz_set_str
-            cout << "Je vais choper les nombres" << endl;
+            cout << "WHiiiiiiiiiA" << endl;
             gmp_sscanf(line.c_str(), "%Zd %Zd", interbas, interhaut);
-            //gmp_fscanf("", interbas, interhaut);
-            //gmp_scanf("", interbas, interhaut);
+            cout << "oooooooooooo" << endl;
+            mpz_set(nb, interbas);
+            cout << "WHAAuuuuuuuuuuA" << endl;
+            while (mpz_cmp(nb, interhaut) < 0)
+            {
+                cout << "WHAAAAAAAAAAAA" << endl;
+                int is_prime = mpz_probab_prime_p(nb, 50);
+                cout << nb << endl;
+                cout << is_prime << endl;
+                mpz_add(nb, nb, inc);
+            }
+
             cout << "j'ai les nombres" << endl;
             cout << interbas << endl;
             cout << interhaut << endl;
-            //mpz_clears(interbas, interhaut, NULL);
         }
+        mpz_clears(interbas, interhaut, NULL);
+        prime_nb_file.close();
     }
     else
     {
         cout << "Impossible d'ouvrir le fichier.\n";
         return EXIT_FAILURE;
     }
-    prime_nb_file.close();
 }
+
+// int main(int, char**)
+// {
+//   using namespace std;
+
+//   for (size_t bits = 1; ; bits *= 2) {
+//     const size_t rounds = (bits < 4) + bits / 4;
+
+//     cout << "Finding " << bits << "-bit prime w/"
+//       << rounds << " rounds ... " << flush;
+
+//     mpz_class n = find_prime(bits, rounds);
+//     cout << endl << n << endl << endl;
+//   }
+
+//   return 0;
+// }
