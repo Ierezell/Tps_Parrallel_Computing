@@ -7,12 +7,19 @@
 #include <gmp.h>
 #include <stdio.h>
 #include "check_prime.hpp"
+#include "Chrono.hpp"
+#include <vector>
 extern "C"
 {
 #include "get_prime.h"
 }
 using namespace std;
 
+void insert(std::vector<int> &cont, int value)
+{
+    std::vector<int>::iterator iter = std::lower_bound(cont.begin(), cont.end(), value, std::greater<int>()); // find proper position in descending order
+    cont.insert(iter, value);                                                                                 // insert before iterator it
+}
 int main(int argc, char *argv[])
 {
     if (argc < 3 || argc >= 4)
@@ -20,38 +27,34 @@ int main(int argc, char *argv[])
         cout << "Usage : " << argv[0] << "<nb_threads> <fichier.txt>.\n";
         return EXIT_FAILURE;
     }
-    //Ouvrir le .txt
     ifstream prime_nb_file;
     prime_nb_file.open(argv[2]);
     string line;
-    mpz_t interbas, interhaut;
-    mpz_t nb;
-    mpz_t inc;
+    std::vector<int> nb_prime_nb;
+    mpz_t interbas, interhaut, nb, inc;
     mpz_inits(interbas, interhaut, nb, inc, NULL);
     mpz_set_str(inc, "1", 10);
-
-    //salutation();
+    Chrono chron = Chrono();
+    float tic = chron.get();
     if (prime_nb_file.is_open())
     {
         while (getline(prime_nb_file, line))
         {
-            cout << "WHiiiiiiiiiA" << endl;
             gmp_sscanf(line.c_str(), "%Zd %Zd", interbas, interhaut);
-            cout << "oooooooooooo" << endl;
             mpz_set(nb, interbas);
-            cout << "WHAAuuuuuuuuuuA" << endl;
+            vector<mpz_class> nb_prime_nb;
             while (mpz_cmp(nb, interhaut) < 0)
             {
-                cout << "WHAAAAAAAAAAAA" << endl;
                 int is_prime = mpz_probab_prime_p(nb, 50);
-                cout << nb << endl;
-                cout << is_prime << endl;
+                if (is_prime == 1 || is_prime == 2)
+                {
+                    nb_prime_nb.push_back((mpz_class)nb);
+                    cout << nb << endl;
+                }
                 mpz_add(nb, nb, inc);
             }
-
-            cout << "j'ai les nombres" << endl;
-            cout << interbas << endl;
-            cout << interhaut << endl;
+            for (auto i : nb_prime_nb)
+                cout << i << ' ';
         }
         mpz_clears(interbas, interhaut, NULL);
         prime_nb_file.close();
@@ -61,21 +64,6 @@ int main(int argc, char *argv[])
         cout << "Impossible d'ouvrir le fichier.\n";
         return EXIT_FAILURE;
     }
+    float tac = chron.get();
+    cout << tac - tic << "secondes" << endl;
 }
-
-// int main(int, char**)
-// {
-//   using namespace std;
-
-//   for (size_t bits = 1; ; bits *= 2) {
-//     const size_t rounds = (bits < 4) + bits / 4;
-
-//     cout << "Finding " << bits << "-bit prime w/"
-//       << rounds << " rounds ... " << flush;
-
-//     mpz_class n = find_prime(bits, rounds);
-//     cout << endl << n << endl << endl;
-//   }
-
-//   return 0;
-// }

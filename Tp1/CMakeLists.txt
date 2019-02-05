@@ -26,6 +26,7 @@ add_library(check_prime
             src/check_prime.cpp
             src/check_prime.hpp
             )
+
 #file(GLOB_RECURSE SOURCES src/*.c)
 #add_library(get_prime STATIC ${SOURCES})
 
