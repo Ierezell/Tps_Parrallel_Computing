@@ -18,7 +18,8 @@ int main(int argc, char *argv[])
     int nb_thread = atoi(argv[1]);
     int number_of_lines = 0;
     typedef mpz_t intervalle[2];
-    vector<intervalle> thread_intervals;
+    typedef vector<intervalle> list_thread_intervalle;
+    typedef list_thread_intervalle list_tot_intervalle[nb_thread];
     // Check is file for numbers interval is correct
     ifstream prime_nb_file;
     prime_nb_file.open(argv[2]);
@@ -33,11 +34,13 @@ int main(int argc, char *argv[])
     while (getline(prime_nb_file, line))
         number_of_lines++;
     cout << "number_of_lines" << number_of_lines << endl;
+    int i = 0;
     while (getline(prime_nb_file, line))
     {
         intervalle buffer;
         gmp_sscanf(line.c_str(), "%Zd %Zd", buffer[0], buffer[1]);
-        //thread_intervals.push_back(buffer);
+        //list_tot_intervalle[i % nb_thread].push_back(buffer);
+        i++;
     }
     //create threads   
     pthread_t thread_Ids[nb_thread];
