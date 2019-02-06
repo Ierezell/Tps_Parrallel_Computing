@@ -7,7 +7,6 @@
 #include <algorithm> //std::sort
 #include <gmp.h>
 #include <stdio.h>
-#include "check_prime.hpp"
 #include "Chrono.hpp"
 #include <vector>
 #include <pthread.h>
