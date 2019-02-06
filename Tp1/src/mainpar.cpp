@@ -8,6 +8,12 @@
 #include "Types.hpp"
 #include "Compute.hpp"
 using namespace std;
+
+void *compute_interval(void *arg)
+{
+    //executed by threads
+}
+
 int main(int argc, char *argv[])
 {
     // Check for correct usage
