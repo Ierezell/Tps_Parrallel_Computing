@@ -31,12 +31,12 @@ int main(int argc, char *argv[])
     }
     string line;
 
-    vect_of_intervals_t intervals;
+    vect_of_intervalles_t intervals;
     while (getline(prime_nb_file, line))
     {
         intervalle_t buffer;
         gmp_sscanf(line.c_str(), "%Zd %Zd", buffer[0], buffer[1]);
         intervals.push_back(buffer)
     }
-    sort_and_prune(intervals);
+    sort_and_prune(&intervals);
 }
