@@ -27,13 +27,29 @@ add_library(check_prime
             src/check_prime.hpp
             )
 
-#file(GLOB_RECURSE SOURCES src/*.c)
-#add_library(get_prime STATIC ${SOURCES})
-
 # Main program to be compiled
-add_executable(Tp1_Sebastien_Pierre src/main.cpp)
+add_executable(Tp1_Sebastien_Pierre_par src/mainpar.cpp)
+add_executable(Tp1_Sebastien_Pierre_seq src/mainseq.cpp)
+
 # Libraries to link for the main program
-target_link_libraries (Tp1_Sebastien_Pierre ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp check_prime)
+target_link_libraries (Tp1_Sebastien_Pierre_par ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp check_prime)
+add_custom_command(TARGET Tp1_Sebastien_Pierre_par PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
+add_custom_command(TARGET Tp1_Sebastien_Pierre_par PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
+#add_custom_command(TARGET Tp1_Sebastien_Pierre_par POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
+target_link_libraries (Tp1_Sebastien_Pierre_seq ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp check_prime)
+add_custom_command(TARGET Tp1_Sebastien_Pierre_seq PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
+add_custom_command(TARGET Tp1_Sebastien_Pierre_seq PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
+#add_custom_command(TARGET Tp1_Sebastien_Pierre_seq POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
+
+
+# Cmake done by vscode...
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+include(CPack)
+
+
+            #file(GLOB_RECURSE SOURCES src/*.c)
+            #add_library(get_prime STATIC ${SOURCES})
 #target_compile_options(Tp1_Sebastien_Pierre PRIVATE -lgmpxx)
 #target_compile_options(Tp1_Sebastien_Pierre PRIVATE -lgmp)
 #target_compile_options(Tp1_Sebastien_Pierre PRIVATE -pthread )
@@ -46,10 +62,3 @@ target_link_libraries (Tp1_Sebastien_Pierre ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp 
 # file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 # file(COPY ${PROJECT_SOURCE_DIR}/src/nombres.txt DESTINATION ${PROJECT_SOURCE_DIR}/bin/)
 ### AT EACH BUILD ###
-add_custom_command(TARGET Tp1_Sebastien_Pierre PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
-add_custom_command(TARGET Tp1_Sebastien_Pierre PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/nombres.txt)
-
-# Cmake done by vscode...
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)

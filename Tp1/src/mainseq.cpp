@@ -9,6 +9,7 @@
 #include "check_prime.hpp"
 #include "Chrono.hpp"
 #include <vector>
+#include <pthread.h>
 extern "C"
 {
 #include "get_prime.h"
@@ -22,13 +23,13 @@ void insert(std::vector<int> &cont, int value)
 }
 int main(int argc, char *argv[])
 {
-    if (argc < 3 || argc >= 4)
+    if (argc <= 1 || argc > 2)
     {
-        cout << "Usage : " << argv[0] << "<nb_threads> <fichier.txt>.\n";
+        cout << "Usage : " << argv[0] << "<fichier.txt>.\n";
         return EXIT_FAILURE;
     }
     ifstream prime_nb_file;
-    prime_nb_file.open(argv[2]);
+    prime_nb_file.open(argv[1]);
     string line;
     std::vector<int> nb_prime_nb;
     mpz_t interbas, interhaut, nb, inc;
@@ -49,12 +50,12 @@ int main(int argc, char *argv[])
                 if (is_prime == 1 || is_prime == 2)
                 {
                     nb_prime_nb.push_back((mpz_class)nb);
-                    cout << nb << endl;
                 }
                 mpz_add(nb, nb, inc);
             }
             for (auto i : nb_prime_nb)
                 cout << i << ' ';
+            cout << endl;
         }
         mpz_clears(interbas, interhaut, NULL);
         prime_nb_file.close();
@@ -67,3 +68,8 @@ int main(int argc, char *argv[])
     float tac = chron.get();
     cout << tac - tic << "secondes" << endl;
 }
+// Il y a plusieurs petites erreurs dans votre code.
+
+// Essayez d 'utiliser le Visualisateur pas-à-pas,
+// cela va fort probablement vous faire comprendre vos erreurs(voir le fil #217)
+//  !Si vous n ' y parvenez toujours pas, n ' hésitez pas à poser d' autres questions.

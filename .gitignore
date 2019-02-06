@@ -3,3 +3,5 @@
 */build/
 */.vscode/
 .vscode/
+*/bin/
+*/src/nombres.txt

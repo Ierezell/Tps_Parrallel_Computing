@@ -3,9 +3,14 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
+                "/usr/lib/gcc/x86_64-pc-linux-gnu/8.2.1/include",
                 "/usr/include/linux",
-                "/usr/include/c++/8.2.1/tr1"
+                "/usr/local/include/",
+                "/usr/include/",
+                "/usr/lib",
+                "/usr/lib/gcc/x86_64-pc-linux-gnu/8.2.1/include-fixed",
+                "/usr/include/c++/8.2.1/tr1",
+                "${workspaceFolder}/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

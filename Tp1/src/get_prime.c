@@ -1,14 +1,12 @@
-//#include <iostream>
-#include "get_prime.h"
 #include <stdio.h>
-//using namespace std;
+#include "get_prime.h"
 
 void salutation()
 {
     //cout << "coucou" << endl;
     printf("coucou\n");
 }
-void find_d_n_eq_d2r(n)
+void find_d_n_eq_d2r(int n)
 {
 }
 
