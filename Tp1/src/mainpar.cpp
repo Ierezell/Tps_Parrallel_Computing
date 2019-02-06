@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
         cout << "Impossible d'ouvrir le fichier.\n";
         return EXIT_FAILURE;
     }
+    
     // Divide the file in nb_thread buffers for the threads
     while (getline(prime_nb_file, line))
         number_of_lines++;
@@ -38,4 +39,14 @@ int main(int argc, char *argv[])
         gmp_sscanf(line.c_str(), "%Zd %Zd", buffer[0], buffer[1]);
         //thread_intervals.push_back(buffer);
     }
+    //create threads   
+    pthread_t thread_Ids[nb_thread];
+    for (int i = 0; i < nb_thread; i++)
+    {
+        pthread_create(&thread_Ids[i], NULL, compute_inter,(void*) NULL);
+    }
+}
+
+void* compute_inter(void* arg){
+    //executed by threads
 }

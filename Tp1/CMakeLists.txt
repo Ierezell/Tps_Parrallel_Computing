@@ -18,25 +18,27 @@ find_package(GMPXX REQUIRED)
 # Change path of executables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 # Add our own library
-add_library(get_prime
-            src/get_prime.c
-            src/get_prime.h
-            )
-add_library(check_prime
-            src/check_prime.cpp
-            src/check_prime.hpp
-            )
+# add_library(get_prime
+#             src/get_prime.c
+#             src/get_prime.h
+#             )
+# add_library(check_prime
+#             src/check_prime.cpp
+#             src/check_prime.hpp
+#             )
 
 # Main program to be compiled
 add_executable(Tp1_Sebastien_Pierre_par src/mainpar.cpp)
 add_executable(Tp1_Sebastien_Pierre_seq src/mainseq.cpp)
 
 # Libraries to link for the main program
-target_link_libraries (Tp1_Sebastien_Pierre_par ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp check_prime)
+target_link_libraries (Tp1_Sebastien_Pierre_par ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp)
+#target_link_libraries (Tp1_Sebastien_Pierre_par ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp check_prime)
 add_custom_command(TARGET Tp1_Sebastien_Pierre_par PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
 add_custom_command(TARGET Tp1_Sebastien_Pierre_par PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
 #add_custom_command(TARGET Tp1_Sebastien_Pierre_par POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
-target_link_libraries (Tp1_Sebastien_Pierre_seq ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp check_prime)
+target_link_libraries (Tp1_Sebastien_Pierre_seq ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp)
+#target_link_libraries (Tp1_Sebastien_Pierre_seq ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp check_prime)
 add_custom_command(TARGET Tp1_Sebastien_Pierre_seq PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
 add_custom_command(TARGET Tp1_Sebastien_Pierre_seq PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
 #add_custom_command(TARGET Tp1_Sebastien_Pierre_seq POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
