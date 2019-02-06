@@ -15,7 +15,6 @@ extern "C"
 {
 }
 using namespace std;
-
 void insert(vector<int> &cont, int value)
 {
     vector<int>::iterator iter = lower_bound(cont.begin(), cont.end(), value, greater<int>()); // find proper position in descending order

@@ -1,8 +1,6 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
-#include <gmp.h>
+#include <gmpxx.h>
 #include <vector>
-
-typedef mpz_t intervalle_t[2];
-typedef vector<intervalle_t> vect_of_intervalles_t;
+typedef std::vector<mpz_class> vect_of_intervalles_t;
 #endif
