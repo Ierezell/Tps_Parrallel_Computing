@@ -11,10 +11,10 @@
 #include "Chrono.hpp"
 #include <vector>
 #include <pthread.h>
-extern "C"
-{
-#include "get_prime.h"
-}
+// extern "C"
+// {
+// #include "get_prime.h"
+// }
 using namespace std;
 
 void insert(std::vector<int> &cont, int value)
@@ -23,7 +23,7 @@ void insert(std::vector<int> &cont, int value)
     cont.insert(iter, value);                                                                                 // insert before iterator it
 }
 
-bool mpz_cmp2(const mpz_t op1, const mpz_t op2)
+bool mpz_cmp2(mpz_t op1, mpz_t op2)
 {
     if (mpz_cmp(op1, op2) < 0)
     {
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
                 cout << i << ' ';
             cout << endl;
         }
-        //std::sort(nb_prime_nb.begin(),nb_prime_nb.end(), mpz_cmp2);  //sort vector nb_prime_nb.   Not functionnal yet
+        //sort(nb_prime_nb.begin(), nb_prime_nb.end(), mpz_cmp2); //sort vector nb_prime_nb.   Not functionnal yet
         //print every element in vector nb_prime_nb
         for (auto i : nb_prime_nb)
         {
