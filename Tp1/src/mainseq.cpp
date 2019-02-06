@@ -7,20 +7,19 @@
 #include <algorithm> //std::sort
 #include <gmp.h>
 #include <stdio.h>
-#include "check_prime.hpp"
 #include "Chrono.hpp"
 #include <vector>
 #include <pthread.h>
-// extern "C"
-// {
-// #include "get_prime.h"
-// }
+#include <gmpxx.h>
+extern "C"
+{
+}
 using namespace std;
 
-void insert(std::vector<int> &cont, int value)
+void insert(vector<int> &cont, int value)
 {
-    std::vector<int>::iterator iter = std::lower_bound(cont.begin(), cont.end(), value, std::greater<int>()); // find proper position in descending order
-    cont.insert(iter, value);                                                                                 // insert before iterator it
+    vector<int>::iterator iter = lower_bound(cont.begin(), cont.end(), value, greater<int>()); // find proper position in descending order
+    cont.insert(iter, value);                                                                  // insert before iterator it
 }
 
 bool mpz_cmp2(mpz_t op1, mpz_t op2)
@@ -45,7 +44,6 @@ int main(int argc, char *argv[])
     ifstream prime_nb_file;
     prime_nb_file.open(argv[1]);
     string line;
-    std::vector<int> nb_prime_nb;
     mpz_t interbas, interhaut, nb, inc;
     mpz_inits(interbas, interhaut, nb, inc, NULL);
     mpz_set_str(inc, "1", 10); //inc prend la valeur 1, interprété en base 10

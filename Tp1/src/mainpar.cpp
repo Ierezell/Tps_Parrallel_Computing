@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     {
         intervalle buffer;
         gmp_sscanf(line.c_str(), "%Zd %Zd", buffer[0], buffer[1]);
-        list_tot_intervalle[i % nb_thread].push_back(buffer);
+        //list_tot_intervalle[i % nb_thread].push_back(buffer);
         i++;
     }
 }
