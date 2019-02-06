@@ -4,6 +4,7 @@
 #include <cstring>
 #include <sstream>
 #include <typeinfo>
+#include <algorithm> //std::sort
 #include <gmp.h>
 #include <stdio.h>
 #include "check_prime.hpp"
@@ -21,6 +22,18 @@ void insert(std::vector<int> &cont, int value)
     std::vector<int>::iterator iter = std::lower_bound(cont.begin(), cont.end(), value, std::greater<int>()); // find proper position in descending order
     cont.insert(iter, value);                                                                                 // insert before iterator it
 }
+
+bool mpz_cmp2(const mpz_t op1, const mpz_t op2)
+{
+    if (mpz_cmp(op1, op2) < 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 int main(int argc, char *argv[])
 {
     if (argc <= 1 || argc > 2)
@@ -28,36 +41,44 @@ int main(int argc, char *argv[])
         cout << "Usage : " << argv[0] << "<fichier.txt>.\n";
         return EXIT_FAILURE;
     }
+    //open txt file
     ifstream prime_nb_file;
     prime_nb_file.open(argv[1]);
     string line;
     std::vector<int> nb_prime_nb;
     mpz_t interbas, interhaut, nb, inc;
     mpz_inits(interbas, interhaut, nb, inc, NULL);
-    mpz_set_str(inc, "1", 10);
+    mpz_set_str(inc, "1", 10); //inc prend la valeur 1, interprété en base 10
     Chrono chron = Chrono();
     float tic = chron.get();
     if (prime_nb_file.is_open())
     {
+        vector<mpz_class> nb_prime_nb;
         while (getline(prime_nb_file, line))
         {
-            gmp_sscanf(line.c_str(), "%Zd %Zd", interbas, interhaut);
-            mpz_set(nb, interbas);
-            vector<mpz_class> nb_prime_nb;
+            gmp_sscanf(line.c_str(), "%Zd %Zd", interbas, interhaut); //lis les intervalles haut et bas d'une ligne
+            mpz_set(nb, interbas);                                    //nb prend la valeur de interbas
             while (mpz_cmp(nb, interhaut) < 0)
             {
-                int is_prime = mpz_probab_prime_p(nb, 50);
-                if (is_prime == 1 || is_prime == 2)
+                int is_prime = mpz_probab_prime_p(nb, 50); //determine if nb is prime. probability of error < 4^(-50)
+                if (is_prime == 1 || is_prime == 2)        //number is certainly prime or probably prime
                 {
                     nb_prime_nb.push_back((mpz_class)nb);
                 }
-                mpz_add(nb, nb, inc);
+                mpz_add(nb, nb, inc); //nb = nb + 1
             }
             for (auto i : nb_prime_nb)
                 cout << i << ' ';
             cout << endl;
         }
-        mpz_clears(interbas, interhaut, NULL);
+        //std::sort(nb_prime_nb.begin(),nb_prime_nb.end(), mpz_cmp2);  //sort vector nb_prime_nb.   Not functionnal yet
+        //print every element in vector nb_prime_nb
+        for (auto i : nb_prime_nb)
+        {
+            cout << i << ' ';
+        }
+
+        mpz_clears(interbas, interhaut, NULL); //free the space used by variables
         prime_nb_file.close();
     }
     else
@@ -66,7 +87,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     float tac = chron.get();
-    cout << tac - tic << "secondes" << endl;
+    cerr << tac - tic << " secondes" << endl;
 }
 // Il y a plusieurs petites erreurs dans votre code.
 
