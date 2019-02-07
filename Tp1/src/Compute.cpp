@@ -1,11 +1,15 @@
 #include "Types.hpp"
 #include <stdio.h>
 #include <iostream>
-
-bool mpz_compare(const interval_t &a, const interval_t &b)
+custom_mpz_t bool mpz_compare(interval_t &a, interval_t &b)
 {
-    if (mpz_cmp(a.intervalle_bas, b.intervalle_bas) < 0)
+    std::cout << "shuhuhu" << std::endl;
+    if (a.intervalle_bas < b.intervalle_bas)
+    {
+        std::cout << "+petit" << std::endl;
         return true;
+    }
+    std::cout << "+grand" << std::endl;
     return false;
 }
 
@@ -16,19 +20,12 @@ void sort_and_prune(vect_of_intervalles_t intervalles)
     // borne sup[i] = borne inf[i+1] - 1
     std::cout << "plop" << std::endl;
     std::sort(intervalles.begin(), intervalles.end(), mpz_compare);
-    mpz_t inter_bas;
-    mpz_t inter_bas_minus_one;
-
-    mpz_t next_inter_haut;
+    custom_mpz_t inter_bas;
+    custom_mpz_t next_inter_haut;
     for (int i = 0; i < intervalles.size() - 1; i++)
     {
-        mpz_set(inter_bas, intervalles.at(i + 1).intervalle_bas);
-        mpz_set(next_inter_haut, intervalles.at(i).intervalle_haut);
-        if (next_inter_haut >= inter_bas)
-        {
-            mpz_sub_ui(inter_bas_minus_one, inter_bas, (unsigned long)1);
-            mpz_set(next_inter_haut, inter_bas_minus_one); // borne sup[i] = borne inf[i+1] - 1
-        }
+        if (intervalles.at(i + 1).intervalle_haut <= intervalles.at(i).intervalle_bas)
+            intervalles.at(i).intervalle_bas = intervalles.at(i + 1).intervalle_haut - 1;
     }
 }
 

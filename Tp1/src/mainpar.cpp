@@ -31,21 +31,14 @@ int main(int argc, char *argv[])
     // Lis le fichier et
     string line;
     vect_of_intervalles_t intervalles;
-    std::cout << "wha" << std::endl;
 
     while (getline(prime_nb_file, line))
     {
-        std::cout << line << std::endl;
         interval_t buffer;
-        mpz_inits(buffer.intervalle_bas, buffer.intervalle_haut, NULL);
-        std::cout << "Avsscan" << std::endl;
         gmp_sscanf(line.c_str(), "%Zd %Zd", buffer.intervalle_bas, buffer.intervalle_haut);
-        std::cout << "APPsscan" << std::endl;
         intervalles.push_back(buffer);
     }
-    std::cout << "plop" << std::endl;
-
-    //sort_and_prune(intervalles);
+    sort_and_prune(intervalles);
     // Lancement des threads
     // Donne 1/Nb_thread du tableau a chacun
     // Lance la fonction compute trhead pour chacun
