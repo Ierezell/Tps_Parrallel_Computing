@@ -1,31 +1,33 @@
 #include "Types.hpp"
+#include <stdio.h>
+#include <iostream>
 
-bool mpz_compare(mpz_t big_nb_1, mpz_t big_nb_2)
+bool mpz_compare(const interval_t &a, const interval_t &b)
 {
-    if (mpz_cmp(big_nb_1, big_nb_2) < 0)
+    if (mpz_cmp(a.intervalle_bas, b.intervalle_bas) < 0)
         return true;
     return false;
 }
 
-void sort_and_prune(vect_of_intervalles_t *intervalles)
+void sort_and_prune(vect_of_intervalles_t intervalles)
 {
     // trie les intervalles dans l'ordre croissant des bornes inférieures
     // pour chaque intervalle, si borne sup[i] < borne inf[i+1]
     // borne sup[i] = borne inf[i+1] - 1
-
-    std::sort(intervalles->begin(), intervalles->end(), mpz_compare);
+    std::cout << "plop" << std::endl;
+    std::sort(intervalles.begin(), intervalles.end(), mpz_compare);
     mpz_t inter_bas;
     mpz_t inter_bas_minus_one;
 
     mpz_t next_inter_haut;
-    for (int i = 0; i < intervalles->size() - 1; i++)
+    for (int i = 0; i < intervalles.size() - 1; i++)
     {
-        mpz_set(inter_bas, intervalles->at(i + 1).intervalle_bas);
-        mpz_set(next_inter_haut, intervalles->at(i).intervalle_haut);
+        mpz_set(inter_bas, intervalles.at(i + 1).intervalle_bas);
+        mpz_set(next_inter_haut, intervalles.at(i).intervalle_haut);
         if (next_inter_haut >= inter_bas)
         {
             mpz_sub_ui(inter_bas_minus_one, inter_bas, (unsigned long)1);
-            mpz_set(inter_haut, inter_bas_minus_one); // borne sup[i] = borne inf[i+1] - 1
+            mpz_set(next_inter_haut, inter_bas_minus_one); // borne sup[i] = borne inf[i+1] - 1
         }
     }
 }
