@@ -37,10 +37,10 @@ Custom_mpz_t::Custom_mpz_t(Custom_mpz_t const &other)
 {
     mpz_set(value, other.value);
 }
-Custom_mpz_t::~Custom_mpz_t(void)
-{
-    mpz_clear(value);
-}
+// Custom_mpz_t::~Custom_mpz_t(void)
+// {
+//     mpz_clear(value);
+// }
 bool Custom_mpz_t::operator==(Custom_mpz_t const &op2)
 {
     if (mpz_cmp(value, op2.value) == 0)
