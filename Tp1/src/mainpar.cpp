@@ -10,13 +10,48 @@
 #include "Compute.hpp"
 using namespace std;
 
+pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
+int gNumIntervalle = 0;
+vect_of_intervalles_t intervalles; //defined as global to be accessed by any threads
+
 void *compute_intervalle_thread(void *input)
 {
     (void *)input;
-    cout << "Coucou, je suis le thread " << pthread_self() << endl;
     int value = 42;
+    cout << "Coucou, je suis le thread " << pthread_self() << endl;
+    interval_t intervalleThread;
+    int numIntervalleThread = 0;
+
+    //Get a new interval.
+    //Use a mutex to guarantee that two threads cannot get the same interval.
+    while(numIntervalleThread < intervalles.size())
+    {
+        pthread_mutex_lock(&gLock );
+        numIntervalleThread = gNumIntervalle;
+        gNumIntervalle++;
+        pthread_mutex_unlock(&gLock );
+
+            if(numIntervalleThread < intervalles.size()){
+                cout << "bbbbbb" <<endl;
+                intervalleThread = intervalles.at(numIntervalleThread);
+                cout << "Le thread" << pthread_self() << " a recupere l'intervalle n° " << numIntervalleThread <<endl;
+                cout << "aaaaa" <<endl;
+                
+            }
+            else{
+                pthread_exit(&value);
+            }
+    }
+
     pthread_exit(&value);
+
+    //TODO: compute prime numbers in intervalleThread
+    //return list of prime numbers 
+
+    
+    
 }
+
 int main(int argc, char *argv[])
 {
     // Check for correct usage
@@ -39,7 +74,6 @@ int main(int argc, char *argv[])
 
     // Lis le fichier et sauvegarde les intervalles
     string line;
-    vect_of_intervalles_t intervalles;
 
     while (getline(prime_nb_file, line))
     {
@@ -68,8 +102,8 @@ int main(int argc, char *argv[])
         vect_of_intervalles_t buffer(intervalles.begin() + i, intervalles.begin() + i + 1);
         for (int i = 0; i < buffer.size(); i++)
         {
-            cout << "JJSJSJJSJJSJJSJJSJJSJJSJJSJ       " << buffer.at(i).intervalle_bas.value << endl;
-            cout << "lkdfngmkjwdmkjshmkwjdhm<ksj       " << buffer.at(i).intervalle_haut.value << endl;
+            cout << "intervalle bas       " << buffer.at(i).intervalle_bas.value << endl;
+            cout << "intervalle haut       " << buffer.at(i).intervalle_haut.value << endl;
         }
         // cout << std::vector(intervalles.begin() + ((intervalles.size() / nb_threads) * i),
         //                     intervalles.begin() + ((intervalles.size() / nb_threads) * (i + 1)))
@@ -77,8 +111,12 @@ int main(int argc, char *argv[])
         //pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread,
         //(void *)sub(&intervalles[(intervalle.size()/nb_threads)*i],
         // &intervalles[(intervalle.size()/nb_threads)*(i+1)]));
+        
+    }
+    for(int i =0; i < nb_threads; i++){
         pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread, NULL);
     }
+
     //attendre la fin des threads
     cout << "Joignage" << endl;
     for (int i = 0; i < nb_threads; i++)
