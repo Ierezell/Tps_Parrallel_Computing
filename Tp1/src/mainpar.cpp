@@ -66,18 +66,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < intervalles.size(); i++)
     {
         vect_of_intervalles_t buffer(intervalles.begin() + i, intervalles.begin() + i + 1);
-        for (int i = 0; i < buffer.size(); i++)
-        {
-            cout << "JJSJSJJSJJSJJSJJSJJSJJSJJSJ       " << buffer.at(i).intervalle_bas.value << endl;
-            cout << "lkdfngmkjwdmkjshmkwjdhm<ksj       " << buffer.at(i).intervalle_haut.value << endl;
-        }
-        // cout << std::vector(intervalles.begin() + ((intervalles.size() / nb_threads) * i),
-        //                     intervalles.begin() + ((intervalles.size() / nb_threads) * (i + 1)))
-        //      << endl;
-        //pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread,
-        //(void *)sub(&intervalles[(intervalle.size()/nb_threads)*i],
-        // &intervalles[(intervalle.size()/nb_threads)*(i+1)]));
-        pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread, NULL);
+        pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread, (void *)buffer);
     }
     //attendre la fin des threads
     cout << "Joignage" << endl;
