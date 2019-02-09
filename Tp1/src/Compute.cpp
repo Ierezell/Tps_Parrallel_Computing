@@ -10,48 +10,115 @@
 using namespace std;
 bool mpz_compare(interval_t &a, interval_t &b)
 {
-    std::cout << "shuhuhu" << std::endl;
     if (a.intervalle_bas < b.intervalle_bas)
-    {
-        std::cout << "+petit" << std::endl;
         return true;
-    }
-    std::cout << "+grand" << std::endl;
     return false;
 }
 
-void sort_and_prune(vect_of_intervalles_t intervalles)
+void swap_intervalle(vect_of_intervalles_t &intervalles)
 {
-    // trie les intervalles dans l'ordre croissant des bornes inférieures
-    // pour chaque intervalle, si borne sup[i] < borne inf[i+1]
-    // borne sup[i] = borne inf[i+1] - 1
-    std::cout << "plop" << std::endl;
-    std::sort(intervalles.begin(), intervalles.end(), mpz_compare);
-    Custom_mpz_t inter_bas;
-    Custom_mpz_t next_inter_haut;
-    for (int i = 0; i < intervalles.size() - 1; i++)
+    //gere le cas ou les intervalles haut et bas sont inversés
+    Custom_mpz_t tmp;
+    for (int i = 0; i < intervalles.size(); i++)
     {
-        if (intervalles.at(i + 1).intervalle_haut <= intervalles.at(i).intervalle_bas)
-            intervalles.at(i).intervalle_bas = intervalles.at(i + 1).intervalle_haut - 1;
+        if ((intervalles.at(i)).intervalle_bas > (intervalles.at(i)).intervalle_haut)
+        //l'intervalle est à l'envers
+        {
+            tmp = (intervalles.at(i)).intervalle_bas;
+            (intervalles.at(i)).intervalle_bas = (intervalles.at(i)).intervalle_haut;
+            (intervalles.at(i)).intervalle_haut = tmp;
+        }
     }
 }
 
-void compute_intervals(vect_of_intervalles_t intervalles_bas, vect_of_intervalles_t intervalles_haut)
+void sort_and_prune(vect_of_intervalles_t &intervalles)
 {
-    mpz_t nb_to_check_prime, inc;
-    mpz_set_str(inc, "1", 10);
-    int is_prime;
-    for (int i = 0; i < intervalles_bas.size() - 1; i++)
+
+    // trie les intervalles dans l'ordre croissant des bornes inférieures
+    cout << "liste pas triee" << endl;
+    for (int i = 0; i < intervalles.size(); i++)
     {
-        mpz_set(nb_to_check_prime, intervalles_bas.at(i));
-        while (mpz_cmp(nb_to_check_prime, intervalles_haut.at(i)) < 0)
+        cout << "[";
+        cout << (intervalles.at(i)).intervalle_bas.value << ",";
+        cout << (intervalles.at(i)).intervalle_haut.value << "]" << endl;
+    }
+
+    sort(intervalles.begin(), intervalles.end(), mpz_compare);
+    cout << "liste triee" << endl;
+    for (int i = 0; i < intervalles.size(); i++)
+    {
+        cout << "[";
+        cout << (intervalles.at(i)).intervalle_bas.value << ",";
+        cout << (intervalles.at(i)).intervalle_haut.value << "]" << endl;
+    }
+
+    //supprime les chevauchements d'intervalles
+    for (int i = 0; i < intervalles.size() - 1; i++)
+    {
+        cout << "avant traitement " << endl;
+        cout << "i=" << i << " , intervalle i = [";
+        cout << (intervalles.at(i)).intervalle_bas.value << ",";
+        cout << (intervalles.at(i)).intervalle_haut.value << "]" << endl;
+
+        cout << "intervalle i +1 = [";
+        cout << (intervalles.at(i + 1)).intervalle_bas.value << ",";
+        cout << (intervalles.at(i + 1)).intervalle_haut.value << "]" << endl;
+
+        if ((intervalles.at(i + 1)).intervalle_bas <= (intervalles.at(i)).intervalle_haut)
         {
-            is_prime = mpz_probab_prime_p(nb_to_check_prime, 50); //determine if nb is prime. probability of error < 4^(-50)
-            if (is_prime == 1 || is_prime == 2)                   //number is certainly prime or probably prime
+            if ((intervalles.at(i + 1)).intervalle_haut > (intervalles.at(i)).intervalle_haut)
             {
-                cout << nb_to_check_prime << endl;
+                //les intervalles se chevauchent mais ne sont pas inclus l'un dans l'autre
+                cout << "les intervalles se chevauchent mais ne sont pas inclus l'un dans l'autre" << endl;
+                (intervalles.at(i)).intervalle_haut = (intervalles.at(i + 1)).intervalle_bas - 1;
             }
-            mpz_add(nb_to_check_prime, nb_to_check_prime, inc); //nb = nb + 1
+            else
+            {
+                //l intervalle i+1 est inclus dans l'intervalle i
+                cout << "l intervalle i+1 est inclus dans l'intervalle i" << endl;
+                intervalles.erase(intervalles.begin() + (i + 1));
+                if (i > 0)
+                    i--; //Il faut cette fois comparer l'intervalle i à l'intervalle i+2
+            }
+        }
+        else
+        {
+            //les intervalles ne se chevauchent pas
+            cout << "les intervalles ne se chevauchent pas " << endl;
+            //do nothing
+        }
+        cout << "apres traitement " << endl;
+        cout << "i=" << i << " , intervalle i = [";
+        cout << (intervalles.at(i)).intervalle_bas.value << ",";
+        cout << (intervalles.at(i)).intervalle_haut.value << "]" << endl;
+    }
+    cout << "liste Finale" << endl;
+    for (int i = 0; i < intervalles.size(); i++)
+    {
+        cout << "[";
+        cout << (intervalles.at(i)).intervalle_bas.value << ",";
+        cout << (intervalles.at(i)).intervalle_haut.value << "]" << endl;
+    }
+}
+
+void compute_intervalles(vect_of_intervalles_t const &intervalles)
+{
+    Custom_mpz_t nb_to_check_prime;
+    //mpz_init(nb_to_check_prime);
+    int is_prime;
+    cout << "Avant le for" << endl;
+    for (int i = 0; i < intervalles.size(); i++)
+    {
+        cout << i << " eme intervalle de la boucle " << endl;
+        nb_to_check_prime = (intervalles.at(i)).intervalle_bas;
+        while (nb_to_check_prime < (intervalles.at(i)).intervalle_haut)
+        {
+            is_prime = mpz_probab_prime_p(nb_to_check_prime.value, 20); //determine if nb is prime. probability of error < 4^(-20)
+            if (is_prime == 1 || is_prime == 2)                         //number is certainly prime or probably prime
+            {
+                cout << "Je suis premier !   " << nb_to_check_prime.value << endl;
+            }
+            nb_to_check_prime = nb_to_check_prime + (unsigned int)1;
         }
     }
 }
