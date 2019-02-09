@@ -8,21 +8,54 @@
 #include <gmpxx.h>
 #include "Types.hpp"
 #include "Compute.hpp"
+#include "Chrono.hpp"
 using namespace std;
 
-void *compute_intervalle_thread(void *input)
+pthread_mutex_t gLock = PTHREAD_MUTEX_INITIALIZER;
+int gNumIntervalle = 0;
+vect_of_intervalles_t intervalles; //defined as global to be accessed by any threads
+
+void *compute_intervalle_thread(void *arg)
 {
-    (void *)input;
-    cout << "Coucou, je suis le thread " << pthread_self() << endl;
-    int value = 42;
-    pthread_exit(&value);
+    struct param_thread *parametre = (struct param_thread *)arg; //recuperation des arguments transmis au thread
+    cout << "Coucou, je suis le thread " << pthread_self();
+    cout << " et j ai recu la valeur " << parametre->value << endl;
+    parametre->value = 42; //modification de la valeur de la structure: peut etre utilisé pour la sortie du thread
+
+    interval_t intervalleThread;
+    int numIntervalleThread = 0;
+
+    //Get a new interval.
+    //Use a mutex to guarantee that two threads cannot get the same interval.
+    while (numIntervalleThread < intervalles.size())
+    {
+        pthread_mutex_lock(&gLock);
+        numIntervalleThread = gNumIntervalle;
+        gNumIntervalle++;
+        pthread_mutex_unlock(&gLock);
+
+        if (numIntervalleThread < intervalles.size())
+        {
+            intervalleThread = intervalles.at(numIntervalleThread);
+            cout << "Le thread " << pthread_self() << " a recupere l'intervalle n° " << numIntervalleThread << endl;
+            //compute prime numbers in intervalleThread
+            compute_intervalle(intervalleThread);
+        }
+        else
+        {
+            pthread_exit((void *)&parametre);
+        }
+    }
+
+    pthread_exit((void *)&parametre);
 }
+
 int main(int argc, char *argv[])
 {
     // Check for correct usage
     if (argc <= 2 || argc > 3)
     {
-        cout << "Usage : " << argv[0] << "<fichier.txt>.\n";
+        cerr << "Usage : " << argv[0] << "<fichier.txt>.\n";
         return EXIT_FAILURE;
     }
 
@@ -33,13 +66,14 @@ int main(int argc, char *argv[])
     prime_nb_file.open(argv[2]);
     if (prime_nb_file.is_open() == 0)
     {
-        cout << "Impossible d'ouvrir le fichier.\n";
+        cerr << "Impossible d'ouvrir le fichier.\n";
         return EXIT_FAILURE;
     }
 
+    Chrono chron = Chrono();
+    float tic = chron.get();
     // Lis le fichier et sauvegarde les intervalles
     string line;
-    vect_of_intervalles_t intervalles;
 
     while (getline(prime_nb_file, line))
     {
@@ -52,8 +86,8 @@ int main(int argc, char *argv[])
     cout << "sort" << endl;
     sort_and_prune(intervalles);
     cout << "inter" << endl;
-    compute_intervalles(intervalles);
-    cout << "plop" << endl;
+    // compute_intervalles(intervalles);
+    // cout << "plop" << endl;
 
     // Lancement des threads
     // Donne 1/Nb_thread du tableau a chacun
@@ -62,19 +96,38 @@ int main(int argc, char *argv[])
     // PB si le fichier d'entrée est trop gros !
     long input = 10;
     pthread_t Ids_threads[nb_threads];
+    struct param_thread params_threads[nb_threads];
+
     cout << "Lancement des threads " << endl;
     for (int i = 0; i < intervalles.size(); i++)
     {
         vect_of_intervalles_t buffer(intervalles.begin() + i, intervalles.begin() + i + 1);
-        pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread, (void *)buffer);
+        for (int i = 0; i < buffer.size(); i++)
+        {
+            cout << "intervalle bas       " << buffer.at(i).intervalle_bas.value << endl;
+            cout << "intervalle haut       " << buffer.at(i).intervalle_haut.value << endl;
+        }
+        // cout << std::vector(intervalles.begin() + ((intervalles.size() / nb_threads) * i),
+        //                     intervalles.begin() + ((intervalles.size() / nb_threads) * (i + 1)))
+        //      << endl;
+        //pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread,
+        //(void *)sub(&intervalles[(intervalle.size()/nb_threads)*i],
+        // &intervalles[(intervalle.size()/nb_threads)*(i+1)]));
     }
-    //attendre la fin des threads
-    cout << "Joignage" << endl;
     for (int i = 0; i < nb_threads; i++)
     {
-        int *output;
-        pthread_join(Ids_threads[i], (void **)&output);
-        cout << "Un thread a renvoyé la valeur " << *output << endl;
+        params_threads[i].value = i + 1; //initialisation de la structure transmise au thread
+        pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread, (void *)&(params_threads[i]));
     }
-    cout << "Les threads ont fini de travailler" << endl;
+
+    //attendre la fin des threads
+    for (int i = 0; i < nb_threads; i++)
+    {
+        struct param_thread *output;
+        pthread_join(Ids_threads[i], (void **)&output);
+        cout << "Un thread a renvoyé la valeur " << output->value << endl;
+    }
+    float tac = chron.get();
+    cerr << "temps d'execution : " << tac - tic << " secondes" << endl;
+    return EXIT_SUCCESS;
 }
