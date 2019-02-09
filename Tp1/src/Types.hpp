@@ -3,6 +3,10 @@
 #include <gmpxx.h>
 #include <vector>
 
+struct param_thread{
+    int value;
+};
+
 class Custom_mpz_t
 {
 private:

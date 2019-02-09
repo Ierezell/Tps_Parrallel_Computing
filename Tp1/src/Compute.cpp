@@ -8,6 +8,7 @@
 #include <string>
 #include <gmpxx.h>
 using namespace std;
+
 bool mpz_compare(interval_t &a, interval_t &b)
 {
     if (a.intervalle_bas < b.intervalle_bas)
@@ -121,4 +122,23 @@ void compute_intervalles(vect_of_intervalles_t const &intervalles)
             nb_to_check_prime = nb_to_check_prime + (unsigned int)1;
         }
     }
+}
+
+void compute_intervalle(interval_t const &intervalle)
+{
+    Custom_mpz_t nb_to_check_prime;
+    //mpz_init(nb_to_check_prime);
+    int is_prime;
+
+    nb_to_check_prime = intervalle.intervalle_bas;
+    while (nb_to_check_prime < intervalle.intervalle_haut)
+    {
+        is_prime = mpz_probab_prime_p(nb_to_check_prime.value, 20); //determine if nb is prime. probability of error < 4^(-20)
+        if (is_prime == 1 || is_prime == 2)                         //number is certainly prime or probably prime
+        {
+            cout << nb_to_check_prime.value << endl;
+        }
+        nb_to_check_prime = nb_to_check_prime + (unsigned int)1;
+    }
+
 }
