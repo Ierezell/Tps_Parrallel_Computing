@@ -5,14 +5,13 @@
 
 class Custom_mpz_t
 {
-private:
 public:
   mpz_t value;
   Custom_mpz_t(void);
   Custom_mpz_t(Custom_mpz_t const &other);
   Custom_mpz_t(mpz_t const &op);
   Custom_mpz_t(unsigned int op);
-  //~Custom_mpz_t(void);
+
   Custom_mpz_t &operator=(Custom_mpz_t const &other);
   Custom_mpz_t operator-(Custom_mpz_t const &op1);
   Custom_mpz_t operator-(unsigned int op2);
@@ -26,22 +25,18 @@ public:
   bool operator<=(const Custom_mpz_t &op2);
 };
 
+typedef std::vector<interval_t> vect_of_intervalles_t;
+
 struct interval_t
 {
   Custom_mpz_t intervalle_haut;
   Custom_mpz_t intervalle_bas;
 };
 
-typedef std::vector<interval_t> vect_of_intervalles_t;
 struct param_thread_t
 {
-  interval_t intervalle;
-  std::vector<Custom_mpz_t> vect_nb_premiers;
-};
-struct param_thread
-{
   int inputNumeroThread;
+  interval_t intervalle;
   std::vector<Custom_mpz_t> outputList;
 };
-
 #endif
