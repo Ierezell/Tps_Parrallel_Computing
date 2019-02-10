@@ -4,7 +4,8 @@
 #include <vector>
 
 struct param_thread{
-    int value;
+    int inputValue;
+    int outputValue;
 };
 
 class Custom_mpz_t

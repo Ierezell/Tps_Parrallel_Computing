@@ -19,8 +19,8 @@ void *compute_intervalle_thread(void *arg)
 {
     struct param_thread *parametre = (struct param_thread *)arg; //recuperation des arguments transmis au thread
     cout << "Coucou, je suis le thread " << pthread_self();
-    cout << " et j ai recu la valeur " << parametre->value << endl;
-    parametre->value = 42; //modification de la valeur de la structure: peut etre utilisé pour la sortie du thread
+    cout << " et j ai recu la valeur " << parametre->inputValue << endl;
+    parametre->outputValue = 42; //modification de la valeur de la structure: peut etre utilisé pour la sortie du thread
 
     interval_t intervalleThread;
     int numIntervalleThread = 0;
@@ -43,11 +43,11 @@ void *compute_intervalle_thread(void *arg)
         }
         else
         {
-            pthread_exit((void *)&parametre);
+            pthread_exit(NULL);
         }
     }
 
-    pthread_exit((void *)&parametre);
+    pthread_exit(NULL);
 }
 
 int main(int argc, char *argv[])
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     cout << "sort" << endl;
     sort_and_prune(intervalles);
     cout << "inter" << endl;
-    // compute_intervalles(intervalles);
+    // compute_intervalles(intervalles); //version sans threads
     // cout << "plop" << endl;
 
     // Lancement des threads
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     }
     for (int i = 0; i < nb_threads; i++)
     {
-        params_threads[i].value = i + 1; //initialisation de la structure transmise au thread
+        params_threads[i].inputValue = i + 1; //initialisation de la structure transmise au thread
         pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread, (void *)&(params_threads[i]));
     }
 
@@ -124,8 +124,8 @@ int main(int argc, char *argv[])
     for (int i = 0; i < nb_threads; i++)
     {
         struct param_thread *output;
-        pthread_join(Ids_threads[i], (void **)&output);
-        cout << "Un thread a renvoyé la valeur " << output->value << endl;
+        pthread_join(Ids_threads[i], NULL);
+        cout << "Un thread a renvoyé la valeur " << (params_threads[i]).outputValue << endl;
     }
     float tac = chron.get();
     cerr << "temps d'execution : " << tac - tic << " secondes" << endl;
