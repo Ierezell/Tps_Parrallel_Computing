@@ -7,6 +7,7 @@
 #include <typeinfo>
 #include <string>
 #include <gmpxx.h>
+
 using namespace std;
 
 bool mpz_compare(interval_t &a, interval_t &b)
