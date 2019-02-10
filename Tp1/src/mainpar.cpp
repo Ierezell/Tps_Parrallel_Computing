@@ -36,7 +36,7 @@ void *compute_intervalle_thread(void *arg)
             intervalleThread = gIntervalles.at(numIntervalleThread);
             cerr << "Le thread n° " << parametre->inputNumeroThread << " a recupere l'intervalle n° " << numIntervalleThread << endl;
             //calcule les nombres premiers dans intervalleThread
-            compute_intervalle(intervalleThread, parametre);
+            compute_intervalles(intervalleThread, parametre);
         }
         else
         {
@@ -86,11 +86,11 @@ int main(int argc, char *argv[])
     // Lancement des threads
 
     pthread_t Ids_threads[nb_threads];
-    struct param_thread_t  params_threads[nb_threads];
+    struct param_thread_t params_threads[nb_threads];
 
     for (int i = 0; i < nb_threads; i++)
     {
-        params_threads[i].inputNumeroThread = i; //initialisation des inputs de la structure transmise au thread 
+        params_threads[i].inputNumeroThread = i; //initialisation des inputs de la structure transmise au thread
         pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread, (void *)&(params_threads[i]));
     }
 
@@ -98,12 +98,11 @@ int main(int argc, char *argv[])
     vector<Custom_mpz_t> finalList;
     for (int i = 0; i < nb_threads; i++)
     {
-        struct param_thread_t  *output;
+        struct param_thread_t *output;
         pthread_join(Ids_threads[i], NULL);
         finalList.insert(finalList.end(),
                          std::make_move_iterator((params_threads[i].outputList).begin()),
-                         std::make_move_iterator((params_threads[i].outputList).end())
-                         );
+                         std::make_move_iterator((params_threads[i].outputList).end()));
     }
     //trie finalList dans l'ordre croissant
     sort(finalList.begin(), finalList.end());
@@ -112,9 +111,9 @@ int main(int argc, char *argv[])
     float tac = chron.get();
 
     //affichage des resultats dans stdout
-    for(int i=0;i<finalList.size();i++)
+    for (int i = 0; i < finalList.size(); i++)
     {
-        cout << (finalList.at(i)).value <<endl;
+        cout << (finalList.at(i)).value << endl;
     }
 
     //affichage du temps d'execution dans stderr

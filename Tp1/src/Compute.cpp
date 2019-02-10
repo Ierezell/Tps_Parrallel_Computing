@@ -86,7 +86,7 @@ void compute_intervalles(vect_of_intervalles_t const &intervalles)
     }
 }
 
-void compute_intervalle(interval_t const &intervalle, struct param_thread_t * parametre)
+void compute_intervalles(interval_t const &intervalle, struct param_thread_t *parametre)
 {
     Custom_mpz_t nb_to_check_prime;
     int is_prime;
@@ -101,5 +101,21 @@ void compute_intervalle(interval_t const &intervalle, struct param_thread_t * pa
         }
         nb_to_check_prime = nb_to_check_prime + (unsigned int)1;
     }
+}
 
+void compute_intervalles(param_thread_t *parametre)
+{
+    Custom_mpz_t nb_to_check_prime;
+    int is_prime;
+
+    nb_to_check_prime = parametre->intervalle.intervalle_bas;
+    while (nb_to_check_prime < intervalle.intervalle_haut)
+    {
+        is_prime = mpz_probab_prime_p(nb_to_check_prime.value, 20); //determine if nb is prime. probability of error < 4^(-20)
+        if (is_prime == 1 || is_prime == 2)                         //number is certainly prime or probably prime
+        {
+            (parametre->outputList).push_back(nb_to_check_prime);
+        }
+        nb_to_check_prime = nb_to_check_prime + (unsigned int)1;
+    }
 }

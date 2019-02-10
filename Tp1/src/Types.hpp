@@ -25,18 +25,19 @@ public:
   bool operator<=(const Custom_mpz_t &op2);
 };
 
-typedef std::vector<interval_t> vect_of_intervalles_t;
-
-struct interval_t
+typedef struct interval_t
 {
   Custom_mpz_t intervalle_haut;
   Custom_mpz_t intervalle_bas;
-};
+} interval_t;
 
-struct param_thread_t
+typedef struct param_thread_t
 {
   int inputNumeroThread;
   interval_t intervalle;
   std::vector<Custom_mpz_t> outputList;
-};
+} param_thread_t;
+
+typedef std::vector<interval_t> vect_of_intervalles_t;
+
 #endif
