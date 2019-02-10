@@ -33,12 +33,16 @@ struct interval_t
 };
 
 typedef std::vector<interval_t> vect_of_intervalles_t;
-
+struct param_thread_t
+{
+  interval_t intervalle;
+  vector<Custom_mpz_t> vect_nb_premiers;
+};
 struct param_thread
 {
-    int inputValue;
-    int outputValue;
-    std::vector<Custom_mpz_t> outputList;
+  int inputValue;
+  int outputValue;
+  std::vector<Custom_mpz_t> outputList;
 };
 
 #endif
