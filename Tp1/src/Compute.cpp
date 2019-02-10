@@ -64,7 +64,6 @@ void sort_and_prune(vect_of_intervalles_t &intervalles)
     }
 }
 
-
 void compute_intervalles(interval_t const &intervalle, struct param_thread_t *parametre)
 {
     Custom_mpz_t nb_to_check_prime;
@@ -85,9 +84,6 @@ void compute_intervalles(interval_t const &intervalle, struct param_thread_t *pa
 void *compute_intervalles(void *parametre)
 {
     param_thread_t *input_thread = (param_thread_t *)parametre;
-    cout << "Je suis le thread " << pthread_self() << endl;
-    cout << "J'ai reçu l'intervalle" << endl;
-
     Custom_mpz_t nb_to_check_prime;
     int is_prime;
     for (int i = 0; i < input_thread->intervalle.size(); i++)
