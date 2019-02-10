@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
         params_threads[i].intervalle = buffer;
         params_threads[i].inputNumeroThread = i;
         cout << "Lancement du thread " << i << endl;
-        pthread_create(&Ids_threads[i], NULL, comp_int, (void *)&(params_threads));
+        pthread_create(&Ids_threads[i], NULL, compute_intervalles, (void *)&(params_threads[i]));
     }
 
     //attendre la fin des threads

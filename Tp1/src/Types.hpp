@@ -30,14 +30,20 @@ typedef struct interval_t
   Custom_mpz_t intervalle_haut;
   Custom_mpz_t intervalle_bas;
 } interval_t;
+typedef std::vector<interval_t> vect_of_intervalles_t;
 
-typedef struct param_thread_t
+typedef struct param_thread
 {
   int inputNumeroThread;
   interval_t intervalle;
   std::vector<Custom_mpz_t> outputList;
-} param_thread_t;
+} param_thread;
 
-typedef std::vector<interval_t> vect_of_intervalles_t;
+typedef struct param_thread_t
+{
+  int inputNumeroThread;
+  vect_of_intervalles_t intervalle;
+  std::vector<Custom_mpz_t> outputList;
+} param_thread_t;
 
 #endif

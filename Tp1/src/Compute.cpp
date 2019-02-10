@@ -103,19 +103,22 @@ void compute_intervalles(interval_t const &intervalle, struct param_thread_t *pa
     }
 }
 
-void compute_intervalles(param_thread_t *parametre)
+void *compute_intervalles(void *parametre)
 {
+    param_thread_t *input_thread = (param_thread_t *)parametre;
     Custom_mpz_t nb_to_check_prime;
     int is_prime;
-
-    nb_to_check_prime = parametre->intervalle.intervalle_bas;
-    while (nb_to_check_prime < intervalle.intervalle_haut)
+    for (int i = 0; i < input_thread->intervalle.size(); i++)
     {
-        is_prime = mpz_probab_prime_p(nb_to_check_prime.value, 20); //determine if nb is prime. probability of error < 4^(-20)
-        if (is_prime == 1 || is_prime == 2)                         //number is certainly prime or probably prime
+        nb_to_check_prime = input_thread->intervalle.at(i).intervalle_bas;
+        while (nb_to_check_prime < input_thread->intervalle.at(i).intervalle_haut)
         {
-            (parametre->outputList).push_back(nb_to_check_prime);
+            is_prime = mpz_probab_prime_p(nb_to_check_prime.value, 20); //determine if nb is prime. probability of error < 4^(-20)
+            if (is_prime == 1 || is_prime == 2)                         //number is certainly prime or probably prime
+            {
+                (input_thread->outputList).push_back(nb_to_check_prime);
+            }
+            nb_to_check_prime = nb_to_check_prime + (unsigned int)1;
         }
-        nb_to_check_prime = nb_to_check_prime + (unsigned int)1;
     }
 }
