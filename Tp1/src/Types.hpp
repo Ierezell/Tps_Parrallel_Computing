@@ -3,11 +3,6 @@
 #include <gmpxx.h>
 #include <vector>
 
-struct param_thread{
-    int inputValue;
-    int outputValue;
-};
-
 class Custom_mpz_t
 {
 private:
@@ -38,5 +33,12 @@ struct interval_t
 };
 
 typedef std::vector<interval_t> vect_of_intervalles_t;
+
+struct param_thread
+{
+    int inputValue;
+    int outputValue;
+    std::vector<Custom_mpz_t> outputList;
+};
 
 #endif

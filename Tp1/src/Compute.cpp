@@ -124,7 +124,7 @@ void compute_intervalles(vect_of_intervalles_t const &intervalles)
     }
 }
 
-void compute_intervalle(interval_t const &intervalle)
+void compute_intervalle(interval_t const &intervalle, struct param_thread * parametre)
 {
     Custom_mpz_t nb_to_check_prime;
     //mpz_init(nb_to_check_prime);
@@ -136,7 +136,8 @@ void compute_intervalle(interval_t const &intervalle)
         is_prime = mpz_probab_prime_p(nb_to_check_prime.value, 20); //determine if nb is prime. probability of error < 4^(-20)
         if (is_prime == 1 || is_prime == 2)                         //number is certainly prime or probably prime
         {
-            cout << nb_to_check_prime.value << endl;
+            //cout << nb_to_check_prime.value << endl;
+            (parametre->outputList).push_back(nb_to_check_prime);
         }
         nb_to_check_prime = nb_to_check_prime + (unsigned int)1;
     }

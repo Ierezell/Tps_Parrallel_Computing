@@ -39,7 +39,7 @@ void *compute_intervalle_thread(void *arg)
             intervalleThread = intervalles.at(numIntervalleThread);
             cout << "Le thread " << pthread_self() << " a recupere l'intervalle n° " << numIntervalleThread << endl;
             //compute prime numbers in intervalleThread
-            compute_intervalle(intervalleThread);
+            compute_intervalle(intervalleThread, parametre);
         }
         else
         {
@@ -94,12 +94,11 @@ int main(int argc, char *argv[])
     // Lance la fonction compute trhead pour chacun
     // Chaque thread print ses nombres donc osef
     // PB si le fichier d'entrée est trop gros !
-    long input = 10;
     pthread_t Ids_threads[nb_threads];
     struct param_thread params_threads[nb_threads];
 
-    cout << "Lancement des threads " << endl;
-    for (int i = 0; i < intervalles.size(); i++)
+    cout << "Lancement des threads " << endl;     //debug
+    for (int i = 0; i < intervalles.size(); i++)  //debug (toute la boucle for)
     {
         vect_of_intervalles_t buffer(intervalles.begin() + i, intervalles.begin() + i + 1);
         for (int i = 0; i < buffer.size(); i++)
@@ -116,17 +115,29 @@ int main(int argc, char *argv[])
     }
     for (int i = 0; i < nb_threads; i++)
     {
-        params_threads[i].inputValue = i + 1; //initialisation de la structure transmise au thread
+        params_threads[i].inputValue = i + 1; //initialisation de la structure transmise au thread //debug
         pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread, (void *)&(params_threads[i]));
     }
 
-    //attendre la fin des threads
+    //attend la fin des threads et concatene les vecteurs renvoyés dans finalList
+    vector<Custom_mpz_t> finalList;
     for (int i = 0; i < nb_threads; i++)
     {
         struct param_thread *output;
         pthread_join(Ids_threads[i], NULL);
-        cout << "Un thread a renvoyé la valeur " << (params_threads[i]).outputValue << endl;
+        cout << "Un thread a renvoyé la valeur " << (params_threads[i]).outputValue << endl;  //debug
+        finalList.insert(finalList.end(),
+                         std::make_move_iterator((params_threads[i].outputList).begin()),
+                         std::make_move_iterator((params_threads[i].outputList).end())
+                         );
     }
+    sort(finalList.begin(), finalList.end());
+    for(int i=0;i<finalList.size();i++)
+    {
+        cout << (finalList.at(i)).value <<endl;
+    }
+
+
     float tac = chron.get();
     cerr << "temps d'execution : " << tac - tic << " secondes" << endl;
     return EXIT_SUCCESS;
