@@ -64,28 +64,6 @@ void sort_and_prune(vect_of_intervalles_t &intervalles)
     }
 }
 
-void compute_intervalles(vect_of_intervalles_t const &intervalles)
-//version sequentielle
-{
-    Custom_mpz_t nb_to_check_prime;
-    //mpz_init(nb_to_check_prime);
-    int is_prime;
-    cout << "Avant le for" << endl;
-    for (int i = 0; i < intervalles.size(); i++)
-    {
-        cout << i << " eme intervalle de la boucle " << endl;
-        nb_to_check_prime = (intervalles.at(i)).intervalle_bas;
-        while (nb_to_check_prime < (intervalles.at(i)).intervalle_haut)
-        {
-            is_prime = mpz_probab_prime_p(nb_to_check_prime.value, 20); //determine if nb is prime. probability of error < 4^(-20)
-            if (is_prime == 1 || is_prime == 2)                         //number is certainly prime or probably prime
-            {
-                cout << "Je suis premier !   " << nb_to_check_prime.value << endl;
-            }
-            nb_to_check_prime = nb_to_check_prime + (unsigned int)1;
-        }
-    }
-}
 
 void compute_intervalles(interval_t const &intervalle, struct param_thread_t *parametre)
 {
@@ -109,11 +87,7 @@ void *compute_intervalles(void *parametre)
     param_thread_t *input_thread = (param_thread_t *)parametre;
     cout << "Je suis le thread " << pthread_self() << endl;
     cout << "J'ai reçu l'intervalle" << endl;
-    for (int i = 0; i < input_thread->intervalle.size(); i++)
-    {
-        cout << input_thread->intervalle.at(i).intervalle_bas.value << endl;
-        cout << input_thread->intervalle.at(i).intervalle_haut.value << endl;
-    }
+
     Custom_mpz_t nb_to_check_prime;
     int is_prime;
     for (int i = 0; i < input_thread->intervalle.size(); i++)
