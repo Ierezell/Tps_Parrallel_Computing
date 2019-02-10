@@ -14,15 +14,17 @@ using namespace std;
 
 void *compute_intervalle_thread(void *arg)
 {
-    vect_of_intervalles_t *parametre = (vect_of_intervalles_t *)arg; //recuperation des arguments transmis au thread
+    param_thread_t *parametre = (param_thread_t *)arg; //recuperation des arguments transmis au thread
     cout << "Coucou, je suis le thread " << pthread_self();
     cout << " et j ai recu" << endl;
-    for (int i = 0; i < parametre->size(); i++)
+    for (int i = 0; i < parametre->intervalle.size(); i++)
     {
-        cout << "intervalle bas " << parametre->at(i).intervalle_bas.value << endl;
-        cout << "intervalle haut" << parametre->at(i).intervalle_haut.value << endl;
+        compute_intervalle(intervalleThread, parametre);
+        cout << "intervalle bas " << parametre->intervalle.at(i).intervalle_bas.value << endl;
+        cout << "intervalle haut" << parametre->intervalle.at(i).intervalle_haut.value << endl;
     }
-    pthread_exit((void *)&parametre);
+
+    pthread_exit();
 }
 
 int main(int argc, char *argv[])
@@ -63,10 +65,10 @@ int main(int argc, char *argv[])
     cout << "inter" << endl;
     // compute_intervalles(intervalles);
     pthread_t Ids_threads[nb_threads];
+    param_thread_t params_threads[nb_threads];
     vect_of_intervalles_t buffer;
     vect_of_intervalles_t::const_iterator first;
     vect_of_intervalles_t::const_iterator last;
-    param_thread_t param_thread;
     cout << "Lancement des threads " << endl;
     for (int i = 0; i < nb_threads; i++)
     {
@@ -81,10 +83,9 @@ int main(int argc, char *argv[])
             cout << "intervalle bas " << buffer.at(i).intervalle_bas.value << endl;
             cout << "intervalle haut" << buffer.at(i).intervalle_haut.value << endl;
         }
-        param_thread.intervalle = buffer;
-        param_thead.vect_nb_premiers =
-            cout << "lancement thread " << i << endl;
-        pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread, (void *)&(buffer));
+        params_threads[i].intervalle = buffer;
+        cout << "lancement thread " << i << endl;
+        pthread_create(&Ids_threads[i], NULL, compute_intervalle_thread, (void *)&(params_threads));
     }
 
     //attendre la fin des threads
