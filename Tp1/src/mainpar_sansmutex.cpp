@@ -32,8 +32,6 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    Chrono chron = Chrono();
-    float tic = chron.get();
     // Lis le fichier et sauvegarde les intervalles
     string line;
     vect_of_intervalles_t intervalles;
@@ -43,6 +41,8 @@ int main(int argc, char *argv[])
         gmp_sscanf(line.c_str(), "%Zd %Zd", buffer.intervalle_bas.value, buffer.intervalle_haut.value);
         intervalles.push_back(buffer);
     }
+    Chrono chron = Chrono();
+    float tic = chron.get();
     swap_intervalle(intervalles);
     sort_and_prune(intervalles);
 
