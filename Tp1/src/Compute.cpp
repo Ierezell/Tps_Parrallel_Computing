@@ -106,6 +106,13 @@ void compute_intervalles(interval_t const &intervalle, struct param_thread_t *pa
 void *compute_intervalles(void *parametre)
 {
     param_thread_t *input_thread = (param_thread_t *)parametre;
+    cout << "Je suis le thread " << pthread_self() << endl;
+    cout << "J'ai reçu l'intervalle" << endl;
+    for (int i = 0; i < input_thread->intervalle.size(); i++)
+    {
+        cout << input_thread->intervalle.at(i).intervalle_bas.value << endl;
+        cout << input_thread->intervalle.at(i).intervalle_haut.value << endl;
+    }
     Custom_mpz_t nb_to_check_prime;
     int is_prime;
     for (int i = 0; i < input_thread->intervalle.size(); i++)
@@ -121,4 +128,5 @@ void *compute_intervalles(void *parametre)
             nb_to_check_prime = nb_to_check_prime + (unsigned int)1;
         }
     }
+    pthread_exit(NULL);
 }
