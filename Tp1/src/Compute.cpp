@@ -86,7 +86,7 @@ void compute_intervalles(vect_of_intervalles_t const &intervalles)
     }
 }
 
-void compute_intervalle(interval_t const &intervalle, struct param_thread * parametre)
+void compute_intervalle(interval_t const &intervalle, struct param_thread_t * parametre)
 {
     Custom_mpz_t nb_to_check_prime;
     int is_prime;

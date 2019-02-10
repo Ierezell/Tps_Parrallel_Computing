@@ -17,7 +17,7 @@ vect_of_intervalles_t gIntervalles; //defini comme variable globale pour etre di
 
 void *compute_intervalle_thread(void *arg)
 {
-    struct param_thread *parametre = (struct param_thread *)arg; //recuperation des arguments transmis au thread
+    struct param_thread_t *parametre = (struct param_thread_t *)arg; //recuperation des arguments transmis au thread
 
     interval_t intervalleThread;
     int numIntervalleThread = 0;
@@ -35,7 +35,7 @@ void *compute_intervalle_thread(void *arg)
         {
             intervalleThread = gIntervalles.at(numIntervalleThread);
             cerr << "Le thread n° " << parametre->inputNumeroThread << " a recupere l'intervalle n° " << numIntervalleThread << endl;
-            //compute prime numbers in intervalleThread
+            //calcule les nombres premiers dans intervalleThread
             compute_intervalle(intervalleThread, parametre);
         }
         else
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     // Lancement des threads
 
     pthread_t Ids_threads[nb_threads];
-    struct param_thread params_threads[nb_threads];
+    struct param_thread_t  params_threads[nb_threads];
 
     for (int i = 0; i < nb_threads; i++)
     {
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     vector<Custom_mpz_t> finalList;
     for (int i = 0; i < nb_threads; i++)
     {
-        struct param_thread *output;
+        struct param_thread_t  *output;
         pthread_join(Ids_threads[i], NULL);
         finalList.insert(finalList.end(),
                          std::make_move_iterator((params_threads[i].outputList).begin()),

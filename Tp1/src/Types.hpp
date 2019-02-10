@@ -34,7 +34,7 @@ struct interval_t
 
 typedef std::vector<interval_t> vect_of_intervalles_t;
 
-struct param_thread
+struct param_thread_t 
 {
     int inputNumeroThread;
     std::vector<Custom_mpz_t> outputList;
