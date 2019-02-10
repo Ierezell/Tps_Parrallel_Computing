@@ -18,7 +18,6 @@ vect_of_intervalles_t gIntervalles; //defini comme variable globale pour etre di
 void *compute_intervalle_thread(void *arg)
 {
     struct param_thread *parametre = (struct param_thread *)arg; //recuperation des arguments transmis au thread
-    cout << " Je suis le thread n° " << parametre->inputNumeroThread << endl;
 
     interval_t intervalleThread;
     int numIntervalleThread = 0;
