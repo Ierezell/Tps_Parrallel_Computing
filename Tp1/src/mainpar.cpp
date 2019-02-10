@@ -70,17 +70,19 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    Chrono chron = Chrono();
-    float tic = chron.get();
     // Lis le fichier et sauvegarde les intervalles
     string line;
-
     while (getline(prime_nb_file, line))
     {
         interval_t buffer;
         gmp_sscanf(line.c_str(), "%Zd %Zd", buffer.intervalle_bas.value, buffer.intervalle_haut.value);
         intervalles.push_back(buffer);
     }
+
+    //debut du traitement des intervalles; début du chronometre
+    Chrono chron = Chrono();
+    float tic = chron.get();
+
     cout << "swap" << endl;
     swap_intervalle(intervalles);
     cout << "sort" << endl;
@@ -132,13 +134,15 @@ int main(int argc, char *argv[])
                          );
     }
     sort(finalList.begin(), finalList.end());
+
+    //traitement des intervalles terminé; fin du chronometre
+    float tac = chron.get();
+    cerr << "temps d'execution : " << tac - tic << " secondes" << endl;
+
     for(int i=0;i<finalList.size();i++)
     {
         cout << (finalList.at(i)).value <<endl;
     }
 
-
-    float tac = chron.get();
-    cerr << "temps d'execution : " << tac - tic << " secondes" << endl;
     return EXIT_SUCCESS;
 }

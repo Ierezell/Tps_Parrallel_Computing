@@ -103,6 +103,7 @@ void sort_and_prune(vect_of_intervalles_t &intervalles)
 }
 
 void compute_intervalles(vect_of_intervalles_t const &intervalles)
+//version sequentielle
 {
     Custom_mpz_t nb_to_check_prime;
     //mpz_init(nb_to_check_prime);
