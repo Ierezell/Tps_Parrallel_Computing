@@ -34,7 +34,6 @@ void *compute_intervalle_thread(void *arg)
         if (numIntervalleThread < gIntervalles.size())
         {
             intervalleThread = gIntervalles.at(numIntervalleThread);
-            cerr << "Le thread n° " << parametre->inputNumeroThread << " a recupere l'intervalle n° " << numIntervalleThread << endl;
             //calcule les nombres premiers dans intervalleThread
             compute_intervalles(intervalleThread, parametre);
         }

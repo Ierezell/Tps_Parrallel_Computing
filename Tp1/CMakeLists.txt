@@ -46,6 +46,10 @@ add_custom_command(TARGET Tp1_Sebastien_Pierre_seq PRE_BUILD COMMAND ${CMAKE_COM
 add_custom_command(TARGET Tp1_Sebastien_Pierre_seq PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
 #add_custom_command(TARGET Tp1_Sebastien_Pierre_seq POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
 
+target_compile_options(Tp1_Sebastien_Pierre_par_sansmutex PRIVATE -O3)
+target_compile_options(Tp1_Sebastien_Pierre_par PRIVATE -O3)
+target_compile_options(Tp1_Sebastien_Pierre_seq PRIVATE -O3)
+
 
 # Cmake done by vscode...
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
