@@ -110,10 +110,10 @@ int main(int argc, char *argv[])
     float tac = chron.get();
 
     //affichage des resultats dans stdout
-    // for (int i = 0; i < finalList.size(); i++)
-    // {
-    //     cout << (finalList.at(i)).value << endl;
-    // }
+    for (int i = 0; i < finalList.size(); i++)
+    {
+        cout << (finalList.at(i)).value << endl;
+    }
 
     //affichage du temps d'execution dans stderr
     cerr << "temps d'execution : " << tac - tic << " secondes" << endl;

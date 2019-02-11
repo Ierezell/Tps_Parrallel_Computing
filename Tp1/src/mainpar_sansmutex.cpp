@@ -71,10 +71,10 @@ int main(int argc, char *argv[])
                          std::make_move_iterator((params_threads[i].outputList).end()));
     }
     float tac = chron.get();
-    // for (int i = 0; i < finalList.size(); i++)
-    // {
-    //     cout << (finalList.at(i)).value << endl;
-    // }
+    for (int i = 0; i < finalList.size(); i++)
+    {
+        cout << (finalList.at(i)).value << endl;
+    }
     cerr << "Temps d'exécution : " << tac - tic << " secondes" << endl;
     return EXIT_SUCCESS;
 }
