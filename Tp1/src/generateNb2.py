@@ -5,7 +5,7 @@ import random
 for j in range(2,11):
     with open("./nombres"+str(j)+".txt", 'w') as fichier_nombre:
         fichier_nombre.write("")
-    for _ in range(100):  #nombre d'intervalles
+    for _ in range(500):  #nombre d'intervalles
         intervalle_bas = random.randint(1,9) * 10**(random.randint(10,100))
         intervalle_haut = intervalle_bas + 10**j   #largeur des intervalles
         with open("./nombres"+str(j)+".txt", 'a') as fichier_nombre:

@@ -16,23 +16,7 @@ extern "C"
 {
 }
 using namespace std;
-void insert(vector<int> &cont, int value)
-{
-    vector<int>::iterator iter = lower_bound(cont.begin(), cont.end(), value, greater<int>()); // find proper position in descending order
-    cont.insert(iter, value);                                                                  // insert before iterator it
-}
 
-bool mpz_cmp2(mpz_t op1, mpz_t op2)
-{
-    if (mpz_cmp(op1, op2) < 0)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
 int main(int argc, char *argv[])
 {
     if (argc <= 1 || argc > 2)
@@ -87,8 +71,4 @@ int main(int argc, char *argv[])
     
     cerr << tac - tic << " secondes" << endl;
 }
-// Il y a plusieurs petites erreurs dans votre code.
 
-// Essayez d 'utiliser le Visualisateur pas-à-pas,
-// cela va fort probablement vous faire comprendre vos erreurs(voir le fil #217)
-//  !Si vous n ' y parvenez toujours pas, n ' hésitez pas à poser d' autres questions.
