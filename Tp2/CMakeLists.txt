@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(Tp1_Sebastien_Pierre LANGUAGES C CXX VERSION 0.1.0)
+project(Tp2_Sebastien_Pierre LANGUAGES C CXX VERSION 0.1.0)
 
 include(CTest)
 enable_testing()
@@ -10,10 +10,15 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_MODULE_PATH}
 )
-# Modules required
-find_package(Threads REQUIRED)
 #find_package(GMP REQUIRED)
 find_package(GMPXX REQUIRED)
+# OpenMp
+find_package(OpenMP REQUIRED)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
 
 # Change path of executables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
@@ -28,27 +33,15 @@ add_library(Types
             )
 
 # Main programs to be compiled
-add_executable(Tp1_Sebastien_Pierre_par src/mainpar.cpp)
-add_executable(Tp1_Sebastien_Pierre_par_sansmutex src/mainpar_sansmutex.cpp)
-add_executable(Tp1_Sebastien_Pierre_seq src/mainseq.cpp)
+add_executable(Tp2_Sebastien_Pierre_par src/main.cpp)
 
 # Libraries to link for the main program
-target_link_libraries (Tp1_Sebastien_Pierre_par ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp Types Compute)
-add_custom_command(TARGET Tp1_Sebastien_Pierre_par PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
-add_custom_command(TARGET Tp1_Sebastien_Pierre_par PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
+target_link_libraries (Tp2_Sebastien_Pierre_par gmpxx gmp Types Compute)
+add_custom_command(TARGET Tp2_Sebastien_Pierre_par PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
+add_custom_command(TARGET Tp2_Sebastien_Pierre_par PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
 #add_custom_command(TARGET Tp1_Sebastien_Pierre_par POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
-target_link_libraries (Tp1_Sebastien_Pierre_par_sansmutex ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp Types Compute)
-add_custom_command(TARGET Tp1_Sebastien_Pierre_par_sansmutex PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
-add_custom_command(TARGET Tp1_Sebastien_Pierre_par_sansmutex PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
-#add_custom_command(TARGET Tp1_Sebastien_Pierre_par_sansmutex POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
-target_link_libraries (Tp1_Sebastien_Pierre_seq ${CMAKE_THREAD_LIBS_INIT} gmpxx gmp Types Compute)
-add_custom_command(TARGET Tp1_Sebastien_Pierre_seq PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
-add_custom_command(TARGET Tp1_Sebastien_Pierre_seq PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
-#add_custom_command(TARGET Tp1_Sebastien_Pierre_seq POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
 
-target_compile_options(Tp1_Sebastien_Pierre_par_sansmutex PRIVATE -O3)
-target_compile_options(Tp1_Sebastien_Pierre_par PRIVATE -O3)
-target_compile_options(Tp1_Sebastien_Pierre_seq PRIVATE -O3)
+target_compile_options(Tp2_Sebastien_Pierre_par PRIVATE -O3)
 
 
 # Cmake done by vscode...
