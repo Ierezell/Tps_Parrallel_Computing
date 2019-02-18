@@ -54,6 +54,12 @@ Custom_mpz_t Custom_mpz_t::operator+(unsigned int op2)
     mpz_add_ui(res.value, value, op2);
     return res;
 }
+Custom_mpz_t Custom_mpz_t::operator+(int op2)
+{
+    Custom_mpz_t res;
+    mpz_add_ui(res.value, value, (unsigned int)op2);
+    return res;
+}
 bool Custom_mpz_t::operator==(Custom_mpz_t const &op2)
 {
     if (mpz_cmp(value, op2.value) == 0)

@@ -10,6 +10,8 @@
 #include "Chrono.hpp"  // Classe chronomètre pour le temps d'éxécution
 #include "Types.hpp"   // Structures de données pratiques pour le traitement
 
+using namespace std;
+
 int main(int argc, char const *argv[])
 {
     // Check for correct usage
@@ -46,30 +48,25 @@ int main(int argc, char const *argv[])
     sort_and_prune(intervalles);
 
     // DEBUT DU PARALELLE
-    vect_of_intervalles_t::const_iterator first_elt_buffer;
-    vect_of_intervalles_t::const_iterator last_elt_buffer;
     vector<Custom_mpz_t> finalList;
+    vector<Custom_mpz_t> resultat;
 #pragma omp parallel
     {
-#pragma omp for {
-
+#pragma omp for schedule(static)
         for (int i = 0; i < intervalles.size(); i++)
         {
-            vector<Custom_mpz_t> resultat = compute_interval(intervalles.at[i]);
-#pragma omp critical {
-            finalList.insert(finalList.end(),
-                             std::make_move_iterator((resultat).begin()),
-                             std::make_move_iterator((resultat).end()));
+            resultat.clear();
+            compute_intervalle(intervalles.at(i), resultat);
+#pragma omp critical
+            finalList.insert(finalList.end(), std::make_move_iterator((resultat).begin()), std::make_move_iterator((resultat).end()));
         }
     }
-}
-}
 
-float tac = chron.get();
-for (int i = 0; i < finalList.size(); i++)
-{
-    cout << (finalList.at(i)).value << endl;
-}
-cerr << "Temps d'exécution : " << tac - tic << " secondes" << endl;
-return EXIT_SUCCESS;
+    float tac = chron.get();
+    for (int i = 0; i < finalList.size(); i++)
+    {
+        cout << (finalList.at(i)).value << endl;
+    }
+    cerr << "Temps d'exécution : " << tac - tic << " secondes" << endl;
+    return EXIT_SUCCESS;
 }

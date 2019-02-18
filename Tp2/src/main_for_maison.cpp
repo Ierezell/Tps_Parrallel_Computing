@@ -10,6 +10,8 @@
 #include "Chrono.hpp"  // Classe chronomètre pour le temps d'éxécution
 #include "Types.hpp"   // Structures de données pratiques pour le traitement
 
+using namespace std;
+
 int main(int argc, char const *argv[])
 {
     // Check for correct usage
@@ -49,16 +51,22 @@ int main(int argc, char const *argv[])
     vect_of_intervalles_t::const_iterator first_elt_buffer;
     vect_of_intervalles_t::const_iterator last_elt_buffer;
     vector<Custom_mpz_t> finalList;
-#pragma omp parallel
+#pragma omp parallel for
+    for (int i = 0; i < omp_get_num_threads(); i++)
     {
         int id = omp_get_thread_num();
         first_elt_buffer = intervalles.begin() + id * (intervalles.size() / nb_threads);
         last_elt_buffer = intervalles.begin() + ((id + 1) * (intervalles.size() / nb_threads)) - 1;
         vect_of_intervalles_t buffer(first_elt_buffer, last_elt_buffer + 1);
-        vector<Custom_mpz_t> resultat = compute_interval(buffer);
-        finalList.insert(finalList.end(), std::make_move_iterator((resultat).begin()), std::make_move_iterator((resultat).end()));
+        compute_intervalle(buffer, finalList);
+        // #pragma omp critical
+        //         {
+        //             finalList.insert(finalList.end(), std::make_move_iterator((resultat).begin()), std::make_move_iterator((resultat).end()));
+        //         }
+        // OU BIEN XXX
+        // XXX finalList[id] = resultat;
     }
-
+    // XXX finallist = concatenate(finallist);
     float tac = chron.get();
     for (int i = 0; i < finalList.size(); i++)
     {

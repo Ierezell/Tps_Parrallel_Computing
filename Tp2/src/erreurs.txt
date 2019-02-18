@@ -1,0 +1,109 @@
+[build] Starting build
+[proc] Executing command: /usr/bin/cmake --build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build --config Release --target all -- -j 10
+[build] /usr/bin/cmake -S/mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 -B/mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build --check-build-system CMakeFiles/Makefile.cmake 0
+[build] /usr/bin/cmake -E cmake_progress_start /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build/CMakeFiles /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build/CMakeFiles/progress.marks
+[build] /usr/bin/make -f CMakeFiles/Makefile2 all
+[build] make[1] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] /usr/bin/make -f CMakeFiles/Types.dir/build.make CMakeFiles/Types.dir/depend
+[build] /usr/bin/make -f CMakeFiles/Compute.dir/build.make CMakeFiles/Compute.dir/depend
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] cd /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build/CMakeFiles/Types.dir/DependInfo.cmake --color=
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] cd /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build/CMakeFiles/Compute.dir/DependInfo.cmake --color=
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] /usr/bin/make -f CMakeFiles/Types.dir/build.make CMakeFiles/Types.dir/build
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] /usr/bin/make -f CMakeFiles/Compute.dir/build.make CMakeFiles/Compute.dir/build
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[2]: rien à faire pour « CMakeFiles/Types.dir/build ».
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[2]: rien à faire pour « CMakeFiles/Compute.dir/build ».
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] [ 14%] Built target Types
+[build] [ 28%] Built target Compute
+[build] /usr/bin/make -f CMakeFiles/Tp2_Sebastien_Pierre_main_for_maison.dir/build.make CMakeFiles/Tp2_Sebastien_Pierre_main_for_maison.dir/depend
+[build] /usr/bin/make -f CMakeFiles/Tp2_Sebastien_Pierre_main_multi.dir/build.make CMakeFiles/Tp2_Sebastien_Pierre_main_multi.dir/depend
+[build] /usr/bin/make -f CMakeFiles/Tp2_Sebastien_Pierre_main.dir/build.make CMakeFiles/Tp2_Sebastien_Pierre_main.dir/depend
+[build] /usr/bin/make -f CMakeFiles/Tp2_Sebastien_Pierre_main_for.dir/build.make CMakeFiles/Tp2_Sebastien_Pierre_main_for.dir/depend
+[build] /usr/bin/make -f CMakeFiles/Tp2_Sebastien_Pierre_main_numbers.dir/build.make CMakeFiles/Tp2_Sebastien_Pierre_main_numbers.dir/depend
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] cd /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build/CMakeFiles/Tp2_Sebastien_Pierre_main.dir/DependInfo.cmake --color=
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] cd /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build/CMakeFiles/Tp2_Sebastien_Pierre_main_for_maison.dir/DependInfo.cmake --color=
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] cd /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build/CMakeFiles/Tp2_Sebastien_Pierre_main_multi.dir/DependInfo.cmake --color=
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] cd /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build/CMakeFiles/Tp2_Sebastien_Pierre_main_numbers.dir/DependInfo.cmake --color=
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] cd /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build && /usr/bin/cmake -E cmake_depends "Unix Makefiles" /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2 /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build/CMakeFiles/Tp2_Sebastien_Pierre_main_for.dir/DependInfo.cmake --color=
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] /usr/bin/make -f CMakeFiles/Tp2_Sebastien_Pierre_main_for_maison.dir/build.make CMakeFiles/Tp2_Sebastien_Pierre_main_for_maison.dir/build
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] /usr/bin/make -f CMakeFiles/Tp2_Sebastien_Pierre_main_multi.dir/build.make CMakeFiles/Tp2_Sebastien_Pierre_main_multi.dir/build
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] /usr/bin/make -f CMakeFiles/Tp2_Sebastien_Pierre_main_numbers.dir/build.make CMakeFiles/Tp2_Sebastien_Pierre_main_numbers.dir/build
+[build] /usr/bin/make -f CMakeFiles/Tp2_Sebastien_Pierre_main.dir/build.make CMakeFiles/Tp2_Sebastien_Pierre_main.dir/build
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[2]: rien à faire pour « CMakeFiles/Tp2_Sebastien_Pierre_main.dir/build ».
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] Scanning dependencies of target Tp2_Sebastien_Pierre_main_for
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] /usr/bin/make -f CMakeFiles/Tp2_Sebastien_Pierre_main_for.dir/build.make CMakeFiles/Tp2_Sebastien_Pierre_main_for.dir/build
+[build] [ 35%] Building CXX object CMakeFiles/Tp2_Sebastien_Pierre_main_multi.dir/src/main_multi.cpp.o
+[build] /usr/bin/g++    -fopenmp   -O3 -o CMakeFiles/Tp2_Sebastien_Pierre_main_multi.dir/src/main_multi.cpp.o -c /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_multi.cpp
+[build] [ 42%] Building CXX object CMakeFiles/Tp2_Sebastien_Pierre_main_numbers.dir/src/main_numbers.cpp.o
+[build] /usr/bin/g++    -fopenmp   -O3 -o CMakeFiles/Tp2_Sebastien_Pierre_main_numbers.dir/src/main_numbers.cpp.o -c /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_numbers.cpp
+[build] [ 64%] Built target Tp2_Sebastien_Pierre_main
+[build] [ 64%] Building CXX object CMakeFiles/Tp2_Sebastien_Pierre_main_for_maison.dir/src/main_for_maison.cpp.o
+[build] /usr/bin/g++    -fopenmp   -O3 -o CMakeFiles/Tp2_Sebastien_Pierre_main_for_maison.dir/src/main_for_maison.cpp.o -c /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_for_maison.cpp
+[build] make[2] : on entre dans le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] [ 71%] Building CXX object CMakeFiles/Tp2_Sebastien_Pierre_main_for.dir/src/main_for.cpp.o
+[build] /usr/bin/g++    -fopenmp   -O3 -o CMakeFiles/Tp2_Sebastien_Pierre_main_for.dir/src/main_for.cpp.o -c /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_for.cpp
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_multi.cpp: Dans la fonction « int main(int, const char**) »:
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_multi.cpp:54:9: error: la différence entre « intervalles.std::vector<interval_t>::at(((std::vector<interval_t>::size_type)i)).interval_t::intervalle_haut » et « nb_to_check_prime » n'est pas un type entier
+[build]          for (Custom_mpz_t nb_to_check_prime = intervalles.at(i).intervalle_bas; nb_to_check_prime < intervalles.at(i).intervalle_haut; nb_to_check_prime = nb_to_check_prime + 1)
+[build]          ^~~
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_numbers.cpp: Dans la fonction « int main(int, const char**) »:
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_numbers.cpp:54:9: error: la différence entre « intervalles.std::vector<interval_t>::at(((std::vector<interval_t>::size_type)i)).interval_t::intervalle_haut » et « nb_to_check_prime » n'est pas un type entier
+[build]          for (Custom_mpz_t nb_to_check_prime = intervalles.at(i).intervalle_bas; nb_to_check_prime < intervalles.at(i).intervalle_haut; nb_to_check_prime = nb_to_check_prime + 1)
+[build]          ^~~
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_for_maison.cpp: Dans la fonction « int main(int, const char**) »:
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_for_maison.cpp:61:67: error: pas de fonction correspondant à l'appel « compute_intervalles(vect_of_intervalles_t&) »
+[build]          vector<Custom_mpz_t> resultat = compute_intervalles(buffer);
+[build]                                                                    ^
+[build] In file included from /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/main_for_maison.cpp:9:
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/Compute.hpp:12:6: note: candidate: « void compute_intervalles(const interval_t&, param_thread_t*) »
+[build]  void compute_intervalles(interval_t const &intervalle, struct param_thread_t *parametre);
+[build]       ^~~~~~~~~~~~~~~~~~~
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/Compute.hpp:12:6: note:   le candidat attend 2 arguments, 1 fourni(s)
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/Compute.hpp:13:7: note: candidate: « void* compute_intervalles(void*) »
+[build]  void *compute_intervalles(void *parametre);
+[build]        ^~~~~~~~~~~~~~~~~~~
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/Compute.hpp:13:7: note:   pas de conversion connue pour convertir l'argument 1 depuis « vect_of_intervalles_t » {aka « std::vector<interval_t> »} vers « void* »
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/Compute.hpp:14:6: note: candidate: « void compute_intervalles(interval_t, std::vector<Custom_mpz_t>) »
+[build]  void compute_intervalles(interval_t intervalle, std::vector<Custom_mpz_t> outputVector);
+[build]       ^~~~~~~~~~~~~~~~~~~
+[build] /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/src/Compute.hpp:14:6: note:   le candidat attend 2 arguments, 1 fourni(s)
+[build] make[2]: *** [CMakeFiles/Tp2_Sebastien_Pierre_main_multi.dir/build.make:66: CMakeFiles/Tp2_Sebastien_Pierre_main_multi.dir/src/main_multi.cpp.o] Error 1
+[build] make[1]: *** [CMakeFiles/Makefile2:920: CMakeFiles/Tp2_Sebastien_Pierre_main_multi.dir/all] Error 2
+[build] make[1]: *** Attente des tâches non terminées....
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[2]: *** [CMakeFiles/Tp2_Sebastien_Pierre_main_for_maison.dir/build.make:66: CMakeFiles/Tp2_Sebastien_Pierre_main_for_maison.dir/src/main_for_maison.cpp.o] Error 1
+[build] make[1]: *** [CMakeFiles/Makefile2:237: CMakeFiles/Tp2_Sebastien_Pierre_main_for_maison.dir/all] Error 2
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[2]: *** [CMakeFiles/Tp2_Sebastien_Pierre_main_numbers.dir/build.make:66: CMakeFiles/Tp2_Sebastien_Pierre_main_numbers.dir/src/main_numbers.cpp.o] Error 1
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make[1]: *** [CMakeFiles/Makefile2:1199: CMakeFiles/Tp2_Sebastien_Pierre_main_numbers.dir/all] Error 2
+[build] [ 78%] Linking CXX executable ../bin/Tp2_Sebastien_Pierre_main_for
+[build] /usr/bin/cmake -E cmake_link_script CMakeFiles/Tp2_Sebastien_Pierre_main_for.dir/link.txt --verbose=1
+[build] /usr/bin/g++   -fopenmp    CMakeFiles/Tp2_Sebastien_Pierre_main_for.dir/src/main_for.cpp.o  -o ../bin/Tp2_Sebastien_Pierre_main_for -lgmpxx -lgmp libTypes.a libCompute.a
+[build] make[2] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] [ 78%] Built target Tp2_Sebastien_Pierre_main_for
+[build] make[1] : on quitte le répertoire « /mnt/Documents/Cours/Laval/ParallelComputing/Tps_Parrallel_Computing/Tp2/build »
+[build] make: *** [Makefile:120: all] Error 2
+[build] Build finished with exit code 2

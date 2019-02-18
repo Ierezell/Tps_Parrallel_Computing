@@ -11,7 +11,6 @@
 #include "Types.hpp"   // Structures de données pratiques pour le traitement
 
 using namespace std;
-
 int main(int argc, char const *argv[])
 {
     // Check for correct usage
@@ -47,35 +46,21 @@ int main(int argc, char const *argv[])
     swap_intervalle(intervalles);
     sort_and_prune(intervalles);
     vector<Custom_mpz_t> finalList;
-
-    // DEBUT DU PARALELLE
-
-    // pthread_t Ids_threads[nb_threads];
-    // param_thread_t params_threads[nb_threads];
-    // vect_of_intervalles_t buffer;
-    // vect_of_intervalles_t::const_iterator first_elt_buffer;
-    // vect_of_intervalles_t::const_iterator last_elt_buffer;
-    // for (int i = 0; i < nb_threads; i++)
-    // {
-    //     first_elt_buffer = intervalles.begin() + i * (intervalles.size() / nb_threads);
-    //     last_elt_buffer = intervalles.begin() + ((i + 1) * (intervalles.size() / nb_threads)) - 1;
-    //     vect_of_intervalles_t buffer(first_elt_buffer, last_elt_buffer + 1);
-    //     params_threads[i].intervalle = buffer;
-    //     params_threads[i].inputNumeroThread = i;
-    //     pthread_create(&Ids_threads[i], NULL, compute_intervalles, (void *)&(params_threads[i]));
-    // }
-
-    // //attendre la fin des threads
-    // vector<Custom_mpz_t> finalList;
-    // for (int i = 0; i < nb_threads; i++)
-    // {
-    //     pthread_join(Ids_threads[i], NULL);
-    //     finalList.insert(finalList.end(),
-    //                      std::make_move_iterator((params_threads[i].outputList).begin()),
-    //                      std::make_move_iterator((params_threads[i].outputList).end()));
-    // }
-
-    //FIN DU PARALELLE
+// DEBUT DU PARALELLE
+#pragma omp parallel for
+    for (int i = 0; i < intervalles.size(); i++)
+    {
+        Custom_mpz_t debut = intervalles.at(i).intervalle_bas;
+        Custom_mpz_t fin = intervalles.at(i).intervalle_haut;
+#pragma omp parallel for
+        for (Custom_mpz_t nb_to_check_prime = debut; int(nb_to_check_prime < fin); nb_to_check_prime = nb_to_check_prime + (unsigned int)1)
+        {
+            int is_prime = mpz_probab_prime_p(nb_to_check_prime.value, 20); //determine if nb is prime. probability of error < 4^(-20)
+            if (is_prime == 1 || is_prime == 2)
+#pragma omp critical
+                finalList.push_back(nb_to_check_prime); //number is certainly prime or probably prime
+        }
+    }
 
     float tac = chron.get();
     for (int i = 0; i < finalList.size(); i++)

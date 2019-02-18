@@ -10,6 +10,8 @@
 #include "Chrono.hpp"  // Classe chronomètre pour le temps d'éxécution
 #include "Types.hpp"   // Structures de données pratiques pour le traitement
 
+using namespace std;
+
 int main(int argc, char const *argv[])
 {
     // Check for correct usage
@@ -45,17 +47,30 @@ int main(int argc, char const *argv[])
     swap_intervalle(intervalles);
     sort_and_prune(intervalles);
     vector<Custom_mpz_t> finalList;
-    // DEBUT DU PARALELLE
+// DEBUT DU PARALELLE
+#pragma omp parallel for
     for (int i = 0; i < intervalles.size(); i++)
     {
+        Custom_mpz_t debut = intervalles.at(i).intervalle_bas;
+        Custom_mpz_t fin = intervalles.at(i).intervalle_haut;
+        mpz_t offset;
+        mpz_init(offset);
+        mpz_sub(offset, fin.value, debut.value);
+        unsigned int size_interval = -1;
+        if (mpz_fits_ulong_p(offset))
+            unsigned int size_interval = mpz_get_ui(offset);
+
 #pragma omp parallel for
+        for (int i = 0; i < size_interval; i += 1)
         {
-            for (Custom_mpz_t nb_to_check_prime = intervalles.intervalle_bas; i < intervalles.intervalle_haut; i++)
-            {
-                int is_prime = mpz_probab_prime_p(nb_to_check_prime.value, 20); //determine if nb is prime. probability of error < 4^(-20)
-                if (is_prime == 1 || is_prime == 2)                             //number is certainly prime or probably prime
-                    finalList.push_back(nb_to_check_prime);
-            }
+            mpz_t nb_to_check_prime;
+            mpz_init(nb_to_check_prime);
+            mpz_add(nb_to_check_prime, nb_to_check_prime, offset);
+            mpz_add_ui(nb_to_check_prime, nb_to_check_prime, i);
+            int is_prime = mpz_probab_prime_p(nb_to_check_prime, 20); //determine if nb is prime. probability of error < 4^(-20)
+            if (is_prime == 1 || is_prime == 2)
+#pragma omp critical
+                finalList.push_back(nb_to_check_prime); //number is certainly prime or probably prime
         }
     }
 

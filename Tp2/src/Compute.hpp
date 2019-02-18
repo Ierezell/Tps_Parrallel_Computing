@@ -9,4 +9,8 @@ void swap_intervalle(vect_of_intervalles_t &intervalles);
 
 void sort_and_prune(vect_of_intervalles_t &intervalles);
 
+void compute_intervalles(interval_t const &intervalle, struct param_thread_t *parametre);
+void *compute_intervalles(void *parametre);
+void compute_intervalle(interval_t intervalle, std::vector<Custom_mpz_t> outputVector);
+
 #endif //COMPUTE_HPP
