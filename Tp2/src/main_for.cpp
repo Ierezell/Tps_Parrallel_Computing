@@ -46,39 +46,30 @@ int main(int argc, char const *argv[])
     sort_and_prune(intervalles);
 
     // DEBUT DU PARALELLE
-
-    // pthread_t Ids_threads[nb_threads];
-    // param_thread_t params_threads[nb_threads];
-    // vect_of_intervalles_t buffer;
-    // vect_of_intervalles_t::const_iterator first_elt_buffer;
-    // vect_of_intervalles_t::const_iterator last_elt_buffer;
-    // for (int i = 0; i < nb_threads; i++)
-    // {
-    //     first_elt_buffer = intervalles.begin() + i * (intervalles.size() / nb_threads);
-    //     last_elt_buffer = intervalles.begin() + ((i + 1) * (intervalles.size() / nb_threads)) - 1;
-    //     vect_of_intervalles_t buffer(first_elt_buffer, last_elt_buffer + 1);
-    //     params_threads[i].intervalle = buffer;
-    //     params_threads[i].inputNumeroThread = i;
-    //     pthread_create(&Ids_threads[i], NULL, compute_intervalles, (void *)&(params_threads[i]));
-    // }
-
-    // //attendre la fin des threads
-    // vector<Custom_mpz_t> finalList;
-    // for (int i = 0; i < nb_threads; i++)
-    // {
-    //     pthread_join(Ids_threads[i], NULL);
-    //     finalList.insert(finalList.end(),
-    //                      std::make_move_iterator((params_threads[i].outputList).begin()),
-    //                      std::make_move_iterator((params_threads[i].outputList).end()));
-    // }
-
-    //FIN DU PARALELLE
-
-    float tac = chron.get();
-    for (int i = 0; i < finalList.size(); i++)
+    vect_of_intervalles_t::const_iterator first_elt_buffer;
+    vect_of_intervalles_t::const_iterator last_elt_buffer;
+    vector<Custom_mpz_t> finalList;
+#pragma omp parallel
     {
-        cout << (finalList.at(i)).value << endl;
+#pragma omp for {
+
+        for (int i = 0; i < intervalles.size(); i++)
+        {
+            vector<Custom_mpz_t> resultat = compute_interval(intervalles.at[i]);
+#pragma omp critical {
+            finalList.insert(finalList.end(),
+                             std::make_move_iterator((resultat).begin()),
+                             std::make_move_iterator((resultat).end()));
+        }
     }
-    cerr << "Temps d'exécution : " << tac - tic << " secondes" << endl;
-    return EXIT_SUCCESS;
+}
+}
+
+float tac = chron.get();
+for (int i = 0; i < finalList.size(); i++)
+{
+    cout << (finalList.at(i)).value << endl;
+}
+cerr << "Temps d'exécution : " << tac - tic << " secondes" << endl;
+return EXIT_SUCCESS;
 }

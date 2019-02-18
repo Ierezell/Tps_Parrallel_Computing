@@ -34,6 +34,7 @@ add_library(Types
 
 # Main programs to be compiled
 add_executable(Tp2_Sebastien_Pierre_par src/main.cpp)
+add_executable(Tp2_Sebastien_Pierre_par src/main_simple.cpp)
 
 # Libraries to link for the main program
 target_link_libraries (Tp2_Sebastien_Pierre_par gmpxx gmp Types Compute)

@@ -46,33 +46,18 @@ int main(int argc, char const *argv[])
     sort_and_prune(intervalles);
 
     // DEBUT DU PARALELLE
-
-    // pthread_t Ids_threads[nb_threads];
-    // param_thread_t params_threads[nb_threads];
-    // vect_of_intervalles_t buffer;
-    // vect_of_intervalles_t::const_iterator first_elt_buffer;
-    // vect_of_intervalles_t::const_iterator last_elt_buffer;
-    // for (int i = 0; i < nb_threads; i++)
-    // {
-    //     first_elt_buffer = intervalles.begin() + i * (intervalles.size() / nb_threads);
-    //     last_elt_buffer = intervalles.begin() + ((i + 1) * (intervalles.size() / nb_threads)) - 1;
-    //     vect_of_intervalles_t buffer(first_elt_buffer, last_elt_buffer + 1);
-    //     params_threads[i].intervalle = buffer;
-    //     params_threads[i].inputNumeroThread = i;
-    //     pthread_create(&Ids_threads[i], NULL, compute_intervalles, (void *)&(params_threads[i]));
-    // }
-
-    // //attendre la fin des threads
-    // vector<Custom_mpz_t> finalList;
-    // for (int i = 0; i < nb_threads; i++)
-    // {
-    //     pthread_join(Ids_threads[i], NULL);
-    //     finalList.insert(finalList.end(),
-    //                      std::make_move_iterator((params_threads[i].outputList).begin()),
-    //                      std::make_move_iterator((params_threads[i].outputList).end()));
-    // }
-
-    //FIN DU PARALELLE
+    vect_of_intervalles_t::const_iterator first_elt_buffer;
+    vect_of_intervalles_t::const_iterator last_elt_buffer;
+    vector<Custom_mpz_t> finalList;
+#pragma omp parallel
+    {
+        int id = omp_get_thread_num();
+        first_elt_buffer = intervalles.begin() + id * (intervalles.size() / nb_threads);
+        last_elt_buffer = intervalles.begin() + ((id + 1) * (intervalles.size() / nb_threads)) - 1;
+        vect_of_intervalles_t buffer(first_elt_buffer, last_elt_buffer + 1);
+        vector<Custom_mpz_t> resultat = compute_interval(buffer);
+        finalList.insert(finalList.end(), std::make_move_iterator((resultat).begin()), std::make_move_iterator((resultat).end()));
+    }
 
     float tac = chron.get();
     for (int i = 0; i < finalList.size(); i++)
