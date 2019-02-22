@@ -47,33 +47,40 @@ int main(int argc, char const *argv[])
     swap_intervalle(intervalles);
     sort_and_prune(intervalles);
     vector<Custom_mpz_t> finalList;
-// DEBUT DU PARALELLE
-#pragma omp parallel for
+
+    // Init variables pour le parallele
+    Custom_mpz_t debut;
+    Custom_mpz_t fin;
+    mpz_t offset;
+    mpz_t nb_to_check_prime;
+    unsigned long size_interval;
+    int is_prime;
+    // DEBUT DU PARALELLE
     for (int i = 0; i < intervalles.size(); i++)
     {
-        Custom_mpz_t debut = intervalles.at(i).intervalle_bas;
-        Custom_mpz_t fin = intervalles.at(i).intervalle_haut;
-        mpz_t offset;
+        debut = intervalles.at(i).intervalle_bas;
+        fin = intervalles.at(i).intervalle_haut;
         mpz_init(offset);
         mpz_sub(offset, fin.value, debut.value);
-        unsigned int size_interval = -1;
         if (mpz_fits_ulong_p(offset))
-            unsigned int size_interval = mpz_get_ui(offset);
-
-#pragma omp parallel for
+            size_interval = mpz_get_ui(offset);
+        else
+            cout << "La taille de l'intervalle ne peux pas rentrer dans un unsigned long" << endl;
+#pragma omp parallel private(nb_to_check_prime)
+#pragma omp for schedule(static)
         for (int i = 0; i < size_interval; i += 1)
         {
-            mpz_t nb_to_check_prime;
             mpz_init(nb_to_check_prime);
-            mpz_add(nb_to_check_prime, nb_to_check_prime, offset);
+            mpz_add(nb_to_check_prime, nb_to_check_prime, debut.value);
             mpz_add_ui(nb_to_check_prime, nb_to_check_prime, i);
-            int is_prime = mpz_probab_prime_p(nb_to_check_prime, 20); //determine if nb is prime. probability of error < 4^(-20)
+            is_prime = mpz_probab_prime_p(nb_to_check_prime, 20); //determine if nb is prime. probability of error < 4^(-20)
             if (is_prime == 1 || is_prime == 2)
+            {
 #pragma omp critical
                 finalList.push_back(nb_to_check_prime); //number is certainly prime or probably prime
+            }
         }
     }
-
     float tac = chron.get();
     for (int i = 0; i < finalList.size(); i++)
     {
