@@ -133,12 +133,6 @@ int main(int argc, char const *argv[])
     {
         debut = intervalles.at(i).intervalle_bas;
         fin = intervalles.at(i).intervalle_haut;
-        mpz_init(offset);
-        mpz_sub(offset, fin.value, debut.value);
-        if (mpz_fits_ulong_p(offset))
-            size_interval = mpz_get_ui(offset);
-        else
-            cout << "La taille de l'intervalle ne peux pas rentrer dans un unsigned long" << endl;
         for (nb_to_check_prime = debut; nb_to_check_prime < fin; nb_to_check_prime = nb_to_check_prime + 1)
         {
             is_prime = mpz_probab_prime_p(nb_to_check_prime.value, 20); //determine if nb is prime. probability of error < 4^(-20)
