@@ -127,7 +127,7 @@ int main(int argc, char const *argv[])
     unsigned long size_interval;
     Custom_mpz_t nb_to_check_prime;
     mpz_t offset;
-#pragma omp parallel private(debut, fin, nb_to_check_prime)
+#pragma omp parallel private(debut, fin, nb_to_check_prime, is_prime)
 #pragma omp for schedule(static)
     for (int i = 0; i < intervalles.size(); i++)
     {
@@ -143,6 +143,7 @@ int main(int argc, char const *argv[])
             }
         }
     }
+    sort(finalList.begin(), finalList.end());
     float tac = chron.get();
     for (int i = 0; i < finalList.size(); i++)
     {

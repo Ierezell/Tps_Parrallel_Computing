@@ -33,24 +33,23 @@ add_library(Types
             )
 
 # Main programs to be compiled
-add_executable(Tp2_Sebastien_Pierre_main_for src/main_for.cpp)
-#add_executable(Tp2_Sebastien_Pierre_main_for_maison src/main_for_maison.cpp)
-add_executable(Tp2_Sebastien_Pierre_main_numbers src/main_numbers.cpp)
-#add_executable(Tp2_Sebastien_Pierre_main_multi src/main_multi.cpp)
+add_executable(Tp2_Sebastien_Pierre_main_extra src/main_extra.cpp)
+add_executable(Tp2_Sebastien_Pierre_main_intra src/main_intra.cpp)
+add_executable(Tp2_Sebastien_Pierre_main_multi src/main_multi.cpp)
 
 # Libraries to link for the main program
 #target_link_libraries (Tp2_Sebastien_Pierre_main_for_maison gmpxx gmp Types Compute)
-target_link_libraries (Tp2_Sebastien_Pierre_main_for gmpxx gmp Types Compute)
-target_link_libraries (Tp2_Sebastien_Pierre_main_numbers gmpxx gmp Types Compute)
-#target_link_libraries (Tp2_Sebastien_Pierre_main_multi gmpxx gmp Types Compute)
+target_link_libraries (Tp2_Sebastien_Pierre_main_extra gmpxx gmp Types Compute)
+target_link_libraries (Tp2_Sebastien_Pierre_main_intra gmpxx gmp Types Compute)
+target_link_libraries (Tp2_Sebastien_Pierre_main_multi gmpxx gmp Types Compute)
 
 #target_compile_options(Tp2_Sebastien_Pierre_main_for_maison PRIVATE -O3)
-target_compile_options(Tp2_Sebastien_Pierre_main_for PRIVATE -O3)
-target_compile_options(Tp2_Sebastien_Pierre_main_numbers PRIVATE -O3)
-#target_compile_options(Tp2_Sebastien_Pierre_main_multi PRIVATE -O3)
+target_compile_options(Tp2_Sebastien_Pierre_main_extra PRIVATE -O3)
+target_compile_options(Tp2_Sebastien_Pierre_main_intra PRIVATE -O3)
+target_compile_options(Tp2_Sebastien_Pierre_main_multi PRIVATE -O3)
 
-add_custom_command(TARGET Tp2_Sebastien_Pierre_main_for PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
-add_custom_command(TARGET Tp2_Sebastien_Pierre_main_for PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
+add_custom_command(TARGET Tp2_Sebastien_Pierre_main_extra PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
+add_custom_command(TARGET Tp2_Sebastien_Pierre_main_extra PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
 #add_custom_command(TARGET Tp1_Sebastien_Pierre_par POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
 
 

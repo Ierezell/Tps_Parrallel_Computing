@@ -3,7 +3,7 @@ import random
 nombre = "0123456789"
 with open('./nombres.txt', 'w') as fichier_nombre:
     fichier_nombre.write("")
-for _ in range(100):  # nombre d'intervalles
+for _ in range(00):  # nombre d'intervalles
     intervalle_bas = ""
     intervalle_haut = ""
     for i in range(100):  # nombres de chiffres maximum par borne d'intervalle

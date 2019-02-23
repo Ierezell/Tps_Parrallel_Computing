@@ -66,7 +66,7 @@ int main(int argc, char const *argv[])
             size_interval = mpz_get_ui(offset);
         else
             cout << "La taille de l'intervalle ne peux pas rentrer dans un unsigned long" << endl;
-#pragma omp parallel private(nb_to_check_prime)
+#pragma omp parallel private(nb_to_check_prime, is_prime)
 #pragma omp for schedule(static)
         for (int i = 0; i < size_interval; i += 1)
         {
@@ -81,6 +81,7 @@ int main(int argc, char const *argv[])
             }
         }
     }
+    sort(finalList.begin(), finalList.end());
     float tac = chron.get();
     for (int i = 0; i < finalList.size(); i++)
     {
