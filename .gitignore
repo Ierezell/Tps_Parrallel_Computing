@@ -1,7 +1,13 @@
-*/Testing/
-*/CMakeFiles/
-*/build/
+.pytest_cache/
+*/.pytest_cache/
+
 */.vscode/
 .vscode/
+
 */bin/
+*/build/
+*/CMakeFiles/
+*/Testing/
+
 */src/nombres.txt
+bundle_prof
