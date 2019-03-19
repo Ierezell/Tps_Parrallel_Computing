@@ -23,6 +23,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 #             src/Compute.cpp
 #             src/Compute.hpp
 #             )
+<<<<<<< HEAD
 # add_library(Types
 #             src/Types.cpp
 #             src/Types.hpp
@@ -30,12 +31,19 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
  add_library(Matrix
             src/Matrix.cpp
             src/Matrix.hpp)
+=======
+add_library(Matrix
+            src/Matrix.cpp
+            src/Matrix.hpp
+            )
+>>>>>>> 760f9e8eb56aa0191712bcf67dbf1745d0366a3a
 # ###################################
 # SET(CMAKE_C_COMPILER mpicc)
 # SET(CMAKE_CXX_COMPILER mpicxx)
 # target_link_libraries(test mpi)
 # ####################################
 # Main programs to be compiled
+<<<<<<< HEAD
 add_executable(Tp3_Sebastien_Pierre_main src/main.cpp)
 
 
@@ -44,6 +52,15 @@ add_executable(Tp3_Sebastien_Pierre_main src/main.cpp)
 target_link_libraries(Tp3_Sebastien_Pierre_main ${MPI_CXX_LIBRARIES} ${MPI_CXX_LINK_FLAGS} Matrix)
 target_compile_options(Tp3_Sebastien_Pierre_main PRIVATE ${MPI_CXX_COMPILE_FLAGS})
 target_compile_options(Tp3_Sebastien_Pierre_main PRIVATE -O3)
+=======
+add_executable(Tp2_Sebastien_Pierre_main src/main.cpp)
+
+# Libraries to link for the main program
+#target_link_libraries (Tp2_Sebastien_Pierre_main_for_maison gmpxx gmp Types Compute)
+target_link_libraries(Tp2_Sebastien_Pierre_main ${MPI_CXX_LIBRARIES} ${MPI_CXX_LINK_FLAGS} Matrix)
+target_compile_options(Tp2_Sebastien_Pierre_main PRIVATE ${MPI_CXX_COMPILE_FLAGS})
+target_compile_options(Tp2_Sebastien_Pierre_main PRIVATE -O3)
+>>>>>>> 760f9e8eb56aa0191712bcf67dbf1745d0366a3a
 
 add_custom_command(TARGET Tp3_Sebastien_Pierre_main PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
 #add_custom_command(TARGET Tp2_Sebastien_Pierre_main PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)

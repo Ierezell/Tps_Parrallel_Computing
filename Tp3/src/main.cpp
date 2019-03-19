@@ -3,7 +3,7 @@
 //
 
 #include "Matrix.hpp"
-
+#include "mpi.h"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -75,7 +75,7 @@ void invertSequential(Matrix &iA)
 }
 
 // Inverser la matrice par la méthode de Gauss-Jordan; implantation MPI parallèle.
-void invertParallel(Matrix &iA)
+void invertParallel()
 {
     // vérifier que la matrice est carrée
     assert(iA.rows() == iA.cols());
@@ -96,9 +96,24 @@ void invertParallel(Matrix &iA)
 
 
     MPI::Init();
-    cout << "coucou";
+    // Get the number of processes
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+    // Get the rank of the process
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+    cout << "coucou  " << world_rank << "  " << world_size << endl;
     MPI::Finalize();
 }
+// void invertParallel(Matrix &iA)
+// {
+//     MPI::Init();
+//     cout << "coucou" << endl;
+//     MPI::Finalize();
+//     return 0;
+// }
 
 // Multiplier deux matrices.
 Matrix multiplyMatrix(const Matrix &iMat1, const Matrix &iMat2)
@@ -133,18 +148,26 @@ int main(int argc, char **argv)
 
     MatrixRandom lA(lS, lS);
     // cout << "Matrice random:\n"
+<<<<<<< HEAD
     //      << lA.str() << endl;
+=======
+    //  << lA.str() << endl;
+>>>>>>> 760f9e8eb56aa0191712bcf67dbf1745d0366a3a
 
     Matrix lB(lA);
     invertSequential(lB);
     // cout << "Matrice inverse:\n"
+<<<<<<< HEAD
     //      << lB.str() << endl;
+=======
+    //  << lB.str() << endl;
+>>>>>>> 760f9e8eb56aa0191712bcf67dbf1745d0366a3a
 
     Matrix lRes = multiplyMatrix(lA, lB);
     // cout << "Produit des deux matrices:\n"
     //      << lRes.str() << endl;
 
     cout << "Erreur: " << lRes.getDataArray().sum() - lS << endl;
-
+    invertParallel();
     return 0;
 }
