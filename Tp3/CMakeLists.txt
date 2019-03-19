@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(Tp2_Sebastien_Pierre LANGUAGES C CXX VERSION 0.1.0)
+project(Tp3_Sebastien_Pierre LANGUAGES C CXX VERSION 0.1.0)
 
 include(CTest)
 enable_testing()
@@ -27,21 +27,25 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 #             src/Types.cpp
 #             src/Types.hpp
 #             )
+ add_library(Matrix
+            src/Matrix.cpp
+            src/Matrix.hpp)
 # ###################################
 # SET(CMAKE_C_COMPILER mpicc)
 # SET(CMAKE_CXX_COMPILER mpicxx)
 # target_link_libraries(test mpi)
 # ####################################
 # Main programs to be compiled
-add_executable(Tp2_Sebastien_Pierre_main src/test.cpp)
+add_executable(Tp3_Sebastien_Pierre_main src/main.cpp)
+
 
 # Libraries to link for the main program
 #target_link_libraries (Tp2_Sebastien_Pierre_main_for_maison gmpxx gmp Types Compute)
-target_link_libraries(Tp2_Sebastien_Pierre_main ${MPI_CXX_LIBRARIES} ${MPI_CXX_LINK_FLAGS})
-target_compile_options(Tp2_Sebastien_Pierre_main PRIVATE ${MPI_CXX_COMPILE_FLAGS})
-target_compile_options(Tp2_Sebastien_Pierre_main PRIVATE -O3)
+target_link_libraries(Tp3_Sebastien_Pierre_main ${MPI_CXX_LIBRARIES} ${MPI_CXX_LINK_FLAGS} Matrix)
+target_compile_options(Tp3_Sebastien_Pierre_main PRIVATE ${MPI_CXX_COMPILE_FLAGS})
+target_compile_options(Tp3_Sebastien_Pierre_main PRIVATE -O3)
 
-add_custom_command(TARGET Tp2_Sebastien_Pierre_main PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
+add_custom_command(TARGET Tp3_Sebastien_Pierre_main PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
 #add_custom_command(TARGET Tp2_Sebastien_Pierre_main PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PROJECT_SOURCE_DIR}/src/nombres.txt ${PROJECT_SOURCE_DIR}/bin/)
 #add_custom_command(TARGET Tp1_Sebastien_Pierre_par POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
 
