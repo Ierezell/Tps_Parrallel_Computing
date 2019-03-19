@@ -4,7 +4,7 @@
 */.vscode/
 .vscode/
 
-*/bin/
+#*/bin/
 */build/
 */CMakeFiles/
 */Testing/

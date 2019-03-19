@@ -23,21 +23,21 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 #             src/Compute.cpp
 #             src/Compute.hpp
 #             )
-# add_library(Types
-#             src/Types.cpp
-#             src/Types.hpp
-#             )
+add_library(Matrix
+            src/Matrix.cpp
+            src/Matrix.hpp
+            )
 # ###################################
 # SET(CMAKE_C_COMPILER mpicc)
 # SET(CMAKE_CXX_COMPILER mpicxx)
 # target_link_libraries(test mpi)
 # ####################################
 # Main programs to be compiled
-add_executable(Tp2_Sebastien_Pierre_main src/test.cpp)
+add_executable(Tp2_Sebastien_Pierre_main src/main.cpp)
 
 # Libraries to link for the main program
 #target_link_libraries (Tp2_Sebastien_Pierre_main_for_maison gmpxx gmp Types Compute)
-target_link_libraries(Tp2_Sebastien_Pierre_main ${MPI_CXX_LIBRARIES} ${MPI_CXX_LINK_FLAGS})
+target_link_libraries(Tp2_Sebastien_Pierre_main ${MPI_CXX_LIBRARIES} ${MPI_CXX_LINK_FLAGS} Matrix)
 target_compile_options(Tp2_Sebastien_Pierre_main PRIVATE ${MPI_CXX_COMPILE_FLAGS})
 target_compile_options(Tp2_Sebastien_Pierre_main PRIVATE -O3)
 
