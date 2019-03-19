@@ -148,20 +148,12 @@ int main(int argc, char **argv)
 
     MatrixRandom lA(lS, lS);
     // cout << "Matrice random:\n"
-<<<<<<< HEAD
-    //      << lA.str() << endl;
-=======
     //  << lA.str() << endl;
->>>>>>> 760f9e8eb56aa0191712bcf67dbf1745d0366a3a
 
     Matrix lB(lA);
     invertSequential(lB);
     // cout << "Matrice inverse:\n"
-<<<<<<< HEAD
-    //      << lB.str() << endl;
-=======
     //  << lB.str() << endl;
->>>>>>> 760f9e8eb56aa0191712bcf67dbf1745d0366a3a
 
     Matrix lRes = multiplyMatrix(lA, lB);
     // cout << "Produit des deux matrices:\n"
