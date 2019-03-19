@@ -8,6 +8,7 @@
 #include <ctime>
 #include <iostream>
 #include <stdexcept>
+#include <mpi.h>
 
 using namespace std;
 
@@ -76,7 +77,27 @@ void invertSequential(Matrix &iA)
 // Inverser la matrice par la méthode de Gauss-Jordan; implantation MPI parallèle.
 void invertParallel(Matrix &iA)
 {
-    // vous devez coder cette fonction
+    // vérifier que la matrice est carrée
+    assert(iA.rows() == iA.cols());
+
+    //concatener la matrice iA à la matrice MatrixIdentity(iA.rows())
+
+    //Pour chaque ligne i,
+        // trouver le maximum A(i,j); la colonne correspondante au max est Ci
+            //Si ce maximum est nul, la matrice n'est pas inversible
+        //En parallèle sur toutes les lignes en dessous (ligne k>i), effectuer l'operation Lk = Lk-(A(k,j)/A(i,j))Li
+        //Une réorganisation des colonnes dans l'ordre C1, C2, ... Cn donne une matrice triangulaire
+    //remontée: pour m allant de (n-1) à 1, 
+        //Lm = Lm- [A(m,m+1)L(m+1) - ... -A(m,n)L(n)]
+    //On copie la partie droite dans la matrice courante
+
+
+    //besoin d'adapter la plupart des méthodes de Matrix pour une version à p processeurs
+
+
+    MPI::Init();
+    cout << "coucou";
+    MPI::Finalize();
 }
 
 // Multiplier deux matrices.
@@ -111,17 +132,17 @@ int main(int argc, char **argv)
     }
 
     MatrixRandom lA(lS, lS);
-    cout << "Matrice random:\n"
-         << lA.str() << endl;
+    // cout << "Matrice random:\n"
+    //      << lA.str() << endl;
 
     Matrix lB(lA);
     invertSequential(lB);
-    cout << "Matrice inverse:\n"
-         << lB.str() << endl;
+    // cout << "Matrice inverse:\n"
+    //      << lB.str() << endl;
 
     Matrix lRes = multiplyMatrix(lA, lB);
-    cout << "Produit des deux matrices:\n"
-         << lRes.str() << endl;
+    // cout << "Produit des deux matrices:\n"
+    //      << lRes.str() << endl;
 
     cout << "Erreur: " << lRes.getDataArray().sum() - lS << endl;
 
