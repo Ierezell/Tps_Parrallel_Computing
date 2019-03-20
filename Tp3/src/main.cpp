@@ -75,25 +75,19 @@ void invertSequential(Matrix &iA)
 }
 
 // Inverser la matrice par la méthode de Gauss-Jordan; implantation MPI parallèle.
-void invertParallel()
+void invertParallel(Matrix &iA)
 {
     // vérifier que la matrice est carrée
     assert(iA.rows() == iA.cols());
 
+    unsigned int matrix_size = iA.rows();
+
     //concatener la matrice iA à la matrice MatrixIdentity(iA.rows())
+    Matrix lI = MatrixIdentity(matrix_size);
+    MatrixConcatCols lIA(iA, lI);
 
-    //Pour chaque ligne i,
-        // trouver le maximum A(i,j); la colonne correspondante au max est Ci
-            //Si ce maximum est nul, la matrice n'est pas inversible
-        //En parallèle sur toutes les lignes en dessous (ligne k>i), effectuer l'operation Lk = Lk-(A(k,j)/A(i,j))Li
-        //Une réorganisation des colonnes dans l'ordre C1, C2, ... Cn donne une matrice triangulaire
-    //remontée: pour m allant de (n-1) à 1, 
-        //Lm = Lm- [A(m,m+1)L(m+1) - ... -A(m,n)L(n)]
-    //On copie la partie droite dans la matrice courante
-
-
-    //besoin d'adapter la plupart des méthodes de Matrix pour une version à p processeurs
-
+    cout << "debug:\n"
+        << lIA.str() << endl;
 
     MPI::Init();
     // Get the number of processes
@@ -103,17 +97,38 @@ void invertParallel()
     // Get the rank of the process
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    //chaque processeur se voit assigner les lignes d'indice k tel que k%world_rank == 0
+    int k;
+    struct maxloc{double value; int location;} maxloc_principal, truc;  //TODO: changer le nom de truc 
+
+
+    for(k=0; k<matrix_size; k++ ){  //on parcourt les lignes ...
+        //identifier parmi les lignes >= k la ligne q qui correspond au pivot maximal
+            //le processus principal (n°1) récupère, pour toutes les lignes i>=k, 
+            //l'élément A(i,k) avec un reduce et détermine le maximum parmi ces éléments (MAXLOC)
+        truc.value = //?
+        truc.location = //?
+        MPI::COMM_WORLD.Reduce(&maxloc_principal,&truc,sizeof(double),MPI::DOUBLE_INT,MPI::MAXLOC,1);  
+
+        //echange de la ligne k courante avec la ligne q du pivot
+            //Si les lignes q et k appartiennent au meme processeur, operation immediate...
+
+            //...sinon, communication point à point entre les 2 processus concernés
+
+        //broadcast de la ligne k à tous les processeurs...
+
+        //...qui calculent le facteur d'élimination l(ik) = A(ik)/A(kk)...  (equation 7.2)
+
+        //...et effectuent l'élimination A(ij) = A(ij)-l(ik)A(kj)  (equation 7.3)
+
+    }
+    //On recontruit la matrice AI transformée à partir de toutes les lignes récupérées chez tous les processus...
+
+    //Et on en extrait la partie droite qui correspond à l'inverse de A.
 
     cout << "coucou  " << world_rank << "  " << world_size << endl;
     MPI::Finalize();
 }
-// void invertParallel(Matrix &iA)
-// {
-//     MPI::Init();
-//     cout << "coucou" << endl;
-//     MPI::Finalize();
-//     return 0;
-// }
 
 // Multiplier deux matrices.
 Matrix multiplyMatrix(const Matrix &iMat1, const Matrix &iMat2)
@@ -160,6 +175,6 @@ int main(int argc, char **argv)
     //      << lRes.str() << endl;
 
     cout << "Erreur: " << lRes.getDataArray().sum() - lS << endl;
-    invertParallel();
+    invertParallel(lA);
     return 0;
 }
