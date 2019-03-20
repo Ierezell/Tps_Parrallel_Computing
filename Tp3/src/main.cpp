@@ -75,25 +75,76 @@ void invertSequential(Matrix &iA)
 }
 
 // Inverser la matrice par la méthode de Gauss-Jordan; implantation MPI parallèle.
-void invertParallel()
+void invertParallel(Matrix &matrice)
 {
     // vérifier que la matrice est carrée
-    assert(iA.rows() == iA.cols());
+    assert(matrice.rows() == matrice.cols());
 
     //concatener la matrice iA à la matrice MatrixIdentity(iA.rows())
+    // ==> construire la matrice [A I]
+    MatrixConcatCols matrice_et_id(matrice, MatrixIdentity(matrice.rows()));
 
-    //Pour chaque ligne i,
-        // trouver le maximum A(i,j); la colonne correspondante au max est Ci
-            //Si ce maximum est nul, la matrice n'est pas inversible
-        //En parallèle sur toutes les lignes en dessous (ligne k>i), effectuer l'operation Lk = Lk-(A(k,j)/A(i,j))Li
-        //Une réorganisation des colonnes dans l'ordre C1, C2, ... Cn donne une matrice triangulaire
-    //remontée: pour m allant de (n-1) à 1, 
-        //Lm = Lm- [A(m,m+1)L(m+1) - ... -A(m,n)L(n)]
+    //Pour chaque ligne "ligne" <=> traiter chaque rangée
+    for (size_t ligne = 0; ligne < matrice.rows(); ++ligne)
+    {
+        // trouver l'index ligne_pivot du plus grand pivot.
+        // Pour ce faire on regarde les lignes sous la précédentes.
+        // Celles d'au dessus ont déjà été traitées et sont plus grandes.
+        size_t ligne_pivot = ligne;
+        double lMax_elt = fabs(matrice_et_id(ligne, ligne));
+        for (size_t i = ligne; i < matrice_et_id.rows(); ++i)
+        {
+            if (fabs(matrice_et_id(i, ligne)) > lMax_elt)
+            {
+                lMax_elt = fabs(matrice_et_id(i, ligne));
+                ligne_pivot = i;
+            }
+        }
+        // vérifier que la matrice n'est pas singulière
+        if (matrice_et_id(ligne_pivot, ligne) == 0)
+            throw runtime_error("Matrix not invertible");
+
+        // échanger la ligne courante avec celle du pivot
+        if (ligne_pivot != ligne)
+            matrice_et_id.swapRows(ligne_pivot, ligne);
+
+        double lValue = lAI(k, k);
+        for (size_t j = 0; j < lAI.cols(); ++j)
+        {
+            // On divise les éléments de la rangée k
+            // par la valeur du pivot.
+            // Ainsi, lAI(k,k) deviendra égal à 1.
+            lAI(k, j) /= lValue;
+        }
+
+        // Pour chaque rangée...
+        for (size_t i = 0; i < lAI.rows(); ++i)
+        {
+            if (i != k)
+            { // ...différente de k
+                // On soustrait la rangée k
+                // multipliée par l'élément k de la rangée courante
+                double lValue = lAI(i, k);
+                lAI.getRowSlice(i) -= lAI.getRowCopy(k) * lValue;
+            }
+        }
+    }
+
+    // On copie la partie droite de la matrice AI ainsi transformée
+    // dans la matrice courante (this).
+    for (unsigned int i = 0; i < iA.rows(); ++i)
+    {
+        iA.getRowSlice(i) = lAI.getDataArray()[slice(i * lAI.cols() + iA.cols(), iA.cols(), 1)];
+    }
+    // trouver le maximum A(i,j); la colonne correspondante au max est Ci
+    //Si ce maximum est nul, la matrice n'est pas inversible
+    //En parallèle sur toutes les lignes en dessous (ligne k>i), effectuer l'operation Lk = Lk-(A(k,j)/A(i,j))Li
+    //Une réorganisation des colonnes dans l'ordre C1, C2, ... Cn donne une matrice triangulaire
+    //remontée: pour m allant de (n-1) à 1,
+    //Lm = Lm- [A(m,m+1)L(m+1) - ... -A(m,n)L(n)]
     //On copie la partie droite dans la matrice courante
 
-
     //besoin d'adapter la plupart des méthodes de Matrix pour une version à p processeurs
-
 
     MPI::Init();
     // Get the number of processes
@@ -107,13 +158,6 @@ void invertParallel()
     cout << "coucou  " << world_rank << "  " << world_size << endl;
     MPI::Finalize();
 }
-// void invertParallel(Matrix &iA)
-// {
-//     MPI::Init();
-//     cout << "coucou" << endl;
-//     MPI::Finalize();
-//     return 0;
-// }
 
 // Multiplier deux matrices.
 Matrix multiplyMatrix(const Matrix &iMat1, const Matrix &iMat2)
