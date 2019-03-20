@@ -144,38 +144,38 @@ class MatrixConcatRows : public Matrix
 // Insérer une matrice dans un flot de sortie.
 std::ostream &operator<<(std::ostream &oStream, const Matrix &iMat);
 
-std::slice_array<double> &operator/(std::slice_array<double> arr, double val)
-{
-    std::slice_array<double> new_array = std::slice_array<double>(arr);
-    for (size_t i = 0; i < arr.size(); ++i)
-    {
-        new_array[i] = arr[i] / val
-    }
-    return new_array
-}
-std::slice_array<double> &operator/=(std::slice_array<double> arr, double val)
-{
-    for (size_t i = 0; i < arr.size(); ++i)
-    {
-        arr[i] = arr[i] / val
-    }
-    return arr
-}
-std::slice_array<double> &operator/(std::slice_array<double> arr, double val)
-{
-    std::slice_array<double> new_array = std::slice_array<double>(arr);
-    for (size_t i = 0; i < arr.size(); ++i)
-    {
-        new_array[i] = arr[i] * val
-    }
-    return new_array
-}
-std::slice_array<double> &operator/=(std::slice_array<double> arr, double val)
-{
-    for (size_t i = 0; i < arr.size(); ++i)
-    {
-        arr[i] = arr[i] * val
-    }
-    return arr
-}
+// std::valarray<double> &operator/(std::valarray<double> arr, double val)
+// {
+//     std::valarray<double> new_array = std::valarray<double>(arr);
+//     for (size_t i = 0; i < arr.size(); ++i)
+//     {
+//         new_array[i] = arr[i] / val;
+//     }
+//     return new_array;
+// }
+// std::valarray<double> &operator/=(std::valarray<double> arr, double val)
+// {
+//     for (size_t i = 0; i < arr.size(); ++i)
+//     {
+//         arr[i] = arr[i] / val;
+//     }
+//     return arr;
+// }
+// std::valarray<double> &operator*(std::valarray<double> arr, double val)
+// {
+//     std::valarray<double> new_array = std::valarray<double>(arr);
+//     for (size_t i = 0; i < arr.size(); ++i)
+//     {
+//         new_array[i] = arr[i] * val;
+//     }
+//     return new_array;
+// }
+// std::valarray<double> &operator*=(std::valarray<double> arr, double val)
+// {
+//     for (size_t i = 0; i < arr.size(); ++i)
+//     {
+//         arr[i] = arr[i] * val;
+//     }
+//     return arr;
+// }
 #endif

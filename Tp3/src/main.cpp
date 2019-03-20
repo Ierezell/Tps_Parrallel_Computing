@@ -11,6 +11,7 @@
 #include <mpi.h>
 
 using namespace std;
+typedef std::valarray<double> matData;
 
 // Inverser la matrice par la méthode de Gauss-Jordan; implantation séquentielle.
 void invertSequential(Matrix &iA)
@@ -80,8 +81,8 @@ void invertParallel(Matrix &matrice)
     // Structure pour trouver le maximum
     typedef struct ind_and_val
     {
-        MPI::FLOAT_INT value;
-        MPI::DOUBLE_INT index;
+        double value;
+        int index;
     } ind_and_val;
 
     MPI::Init();
@@ -121,10 +122,12 @@ void invertParallel(Matrix &matrice)
             // ... sinon, communication point à point entre les 2 processus concernés
             else
             {
-                rank_pivot = idx_pivot % world_size;
-                rank_ligne = idx_ligne % world_size;
-                mData line_to_swap = matrice.getRowCopy(idx_ligne);
-                MPI::COMM_WORLD.Sendrecv_replace((void *)line_to_swap, sizeof(mData), mData, rank_pivot, 0, rank_ligne, 0, MPI::COMM_WORLD, status);
+                int rank_pivot = idx_pivot % world_size;
+                int rank_ligne = idx_ligne % world_size;
+                matData line_to_swap = matrice.getRowCopy(idx_ligne);
+                // TODO : Trouver comment passer les bons arguments dans sendrcv_replace et Bcast.... le reste est ok
+                MPI::COMM_WORLD.Sendrecv_replace(line_to_swap, 50, MPI_DOUBLE, rank_pivot, 0, rank_ligne, 0, status);
+                // void *,    int , MPI::Datatype, int,   int , int ,     int
                 matrice.getRowSlice(idx_ligne) = line_to_swap;
             }
         }
@@ -132,8 +135,8 @@ void invertParallel(Matrix &matrice)
         //broadcast de la ligne idx_ligne à tous les processeurs...
         if (idx_ligne % world_size == world_rank)
         {
-            mData ligne_bcast = matrice.getRowCopy(idx_ligne);
-            MPI::COMM_WORLD.Bcast((void *)ligne_bcast, 1, mData, world_rank);
+            matData ligne_bcast = matrice.getRowCopy(idx_ligne);
+            MPI::COMM_WORLD.Bcast(ligne_bcast, sizeof(std::valarray<double>), std::valarray<double>, world_rank);
         }
         int i = 0;
         for (i = 0; i < matrice.rows(); i++)
@@ -146,163 +149,82 @@ void invertParallel(Matrix &matrice)
                 matrice.getRowSlice(i) = matrice.getRowCopy(i) - fact_elim * matrice.getRowCopy(idx_ligne);
             }
             else if (i % world_size == world_rank || i == idx_ligne)
-                matrice.getRowSlice(i) = matrice.getRowCopy(i) / matrice(idx_ligne, idx_ligne);
-        }
-
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-
-        // On copie la partie droite de la matrice AI ainsi transformée
-        // dans la matrice courante (this).
-        for (unsigned int i = 0; i < matrice.rows(); ++i)
-        {
-            matrice.getRowSlice(i) = matrice_et_id.getDataArray()[slice(i * matrice_et_id.cols() + matrice.cols(), matrice.cols(), 1)];
-        }
-
-        //chaque processeur se voit assigner les lignes d'indice k tel que k%world_rank == 0
-        int k;
-
-        for (k = 0; k < matrix_size; k++)
-        { //on parcourt les lignes ...
-            //identifier parmi les lignes >= k la ligne q qui correspond au pivot maximal
-            //le processus principal (n°1) récupère, pour toutes les lignes i>=k,
-            //l'élément A(i,k) avec un reduce et détermine le maximum parmi ces éléments (MAXLOC)
-
-            //echange de la ligne k courante avec la ligne q du pivot
-            //Si les lignes q et k appartiennent au meme processeur, operation immediate...
-
-            //...sinon, communication point à point entre les 2 processus concernés
-
-            //broadcast de la ligne k à tous les processeurs...
-
-            //...qui calculent le facteur d'élimination l(ik) = A(ik)/A(kk)...  (equation 7.2)
-
-            //...et effectuent l'élimination A(ij) = A(ij)-l(ik)A(kj)  (equation 7.3)
-        }
-        //On recontruit la matrice AI transformée à partir de toutes les lignes récupérées chez tous les processus...
-
-        //Et on en extrait la partie droite qui correspond à l'inverse de A.
-
-        cout << "coucou  " << world_rank << "  " << world_size << endl;
-        MPI::Finalize();
-    }
-
-    // Multiplier deux matrices.
-    Matrix multiplyMatrix(const Matrix &iMat1, const Matrix &iMat2)
-    {
-
-        // vérifier la compatibilité des matrices
-        assert(iMat1.cols() == iMat2.rows());
-        // effectuer le produit matriciel
-        Matrix lRes(iMat1.rows(), iMat2.cols());
-        // traiter chaque rangée
-        for (size_t i = 0; i < lRes.rows(); ++i)
-        {
-            // traiter chaque colonne
-            for (size_t j = 0; j < lRes.cols(); ++j)
             {
-                lRes(i, j) = (iMat1.getRowCopy(i) * iMat2.getColumnCopy(j)).sum();
+                std::valarray<double> fact_elim(matrice.cols(), matrice(idx_ligne, idx_ligne));
+                matrice.getRowSlice(i) /= fact_elim;
             }
         }
-        return lRes;
     }
-
-    int main(int argc, char **argv)
+    if (world_rank == 0)
     {
+        cout << matrice.str() << endl;
+        cout << matrice_et_id.str() << endl;
+    }
+    MPI::Finalize();
+}
 
-        srand((unsigned)time(NULL));
+// Multiplier deux matrices.
+Matrix multiplyMatrix(const Matrix &iMat1, const Matrix &iMat2)
+{
 
-        unsigned int lS = 5;
-        if (argc == 2)
+    // vérifier la compatibilité des matrices
+    assert(iMat1.cols() == iMat2.rows());
+    // effectuer le produit matriciel
+    Matrix lRes(iMat1.rows(), iMat2.cols());
+    // traiter chaque rangée
+    for (size_t i = 0; i < lRes.rows(); ++i)
+    {
+        // traiter chaque colonne
+        for (size_t j = 0; j < lRes.cols(); ++j)
         {
-            lS = atoi(argv[1]);
+            lRes(i, j) = (iMat1.getRowCopy(i) * iMat2.getColumnCopy(j)).sum();
         }
+    }
+    return lRes;
+}
 
-        MatrixRandom lA(lS, lS);
-        // cout << "Matrice random:\n"
-        //  << lA.str() << endl;
+int main(int argc, char **argv)
+{
 
-        Matrix lB(lA);
-        invertSequential(lB);
-        // cout << "Matrice inverse:\n"
-        //  << lB.str() << endl;
+    srand((unsigned)time(NULL));
 
-        Matrix lRes = multiplyMatrix(lA, lB);
-        // cout << "Produit des deux matrices:\n"
-        //      << lRes.str() << endl;
-
-        cout << "Erreur: " << lRes.getDataArray().sum() - lS << endl;
-        invertParallel(lA);
-        return 0;
+    unsigned int lS = 5;
+    if (argc == 2)
+    {
+        lS = atoi(argv[1]);
     }
 
-    // if (idx_ligne % world_size == world_rank)
-    // {
-    //     mData ligne_pas_pivot = matrice.getRowCopy();
-    //     mData ligne_pivot;
-    //     MPI::COMM_WORLD.Send((void *)ligne_pas_pivot, sizeof(mData), mData, idx_pivot % world_size);
-    //     MPI::COMM_WORLD.Recv((void *)ligne_pivot, sizeof(mData), mData, idx_pivot % world_size);
-    // }
-    // matrice_et_id.swapRows(idx_pivot, idx_ligne);
-    // if (idx_pivot % world_size == world_rank)
-    // {
-    //     mData ligne_pivot;
-    //     ;
-    //     mData ligne_pas_pivot = matrice.getRowCopy();
-    //     MPI::COMM_WORLD.Recv((void *)ligne_rcv, sizeof(mData), mData, idx_pivot % world_size);
-    //     MPI::COMM_WORLD.Send((void *)ligne_send, sizeof(mData), mData, idx_ligne % world_size);
-    // }
+    MatrixRandom lA(lS, lS);
+    // cout << "Matrice random:\n"
+    //  << lA.str() << endl;
+
+    Matrix lB(lA);
+    invertSequential(lB);
+    // cout << "Matrice inverse:\n"
+    //  << lB.str() << endl;
+
+    Matrix lRes = multiplyMatrix(lA, lB);
+    // cout << "Produit des deux matrices:\n"
+    //      << lRes.str() << endl;
+
+    cout << "Erreur: " << lRes.getDataArray().sum() - lS << endl;
+    invertParallel(lA);
+    return 0;
+}
+
+// if (idx_ligne % world_size == world_rank)
+// {
+//     matData ligne_pas_pivot = matrice.getRowCopy();
+//     matData ligne_pivot;
+//     MPI::COMM_WORLD.Send((void *)ligne_pas_pivot, sizeof(matData), matData, idx_pivot % world_size);
+//     MPI::COMM_WORLD.Recv((void *)ligne_pivot, sizeof(matData), matData, idx_pivot % world_size);
+// }
+// matrice_et_id.swapRows(idx_pivot, idx_ligne);
+// if (idx_pivot % world_size == world_rank)
+// {
+//     matData ligne_pivot;
+//     ;
+//     matData ligne_pas_pivot = matrice.getRowCopy();
+//     MPI::COMM_WORLD.Recv((void *)ligne_rcv, sizeof(matData), matData, idx_pivot % world_size);
+//     MPI::COMM_WORLD.Send((void *)ligne_send, sizeof(matData), matData, idx_ligne % world_size);
+// }
