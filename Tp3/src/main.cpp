@@ -132,11 +132,12 @@ void invertParallel(Matrix &matrice)
 
         ind_and_val max_pivot_et_rang;
         cout << idx_ligne << "  " << world_rank << " : " << max_pivot_et_rang.value << " : " << max_pivot_et_rang.index << endl;
-        MPI::COMM_WORLD.Allreduce(&subMatrice_Col_Value.rbegin()->first, &max_pivot_et_rang.value, 1, MPI_DOUBLE_INT, MPI_MAXLOC);
-        cout << idx_ligne << "  " << world_rank << " / " << max_pivot_et_rang.value << " / " << max_pivot_et_rang.index << endl;
 
-        // if (world_rank == max_pivot_et_rang.index)
-        //     MPI::COMM_WORLD.Bcast(&max_pivot_et_rang.index, 1, MPI_INT, world_rank);
+        MPI::COMM_WORLD.Allreduce(&subMatrice_Col_Value.rbegin()->first, &max_pivot_et_rang.value, 1, MPI_DOUBLE_INT, MPI_MAXLOC);
+        if (world_rank == max_pivot_et_rang.index)
+            MPI::COMM_WORLD.Bcast(&max_pivot_et_rang.index, 1, MPI_INT, world_rank);
+
+        cout << idx_ligne << "  " << world_rank << " / " << max_pivot_et_rang.value << " / " << max_pivot_et_rang.index << endl;
 
         // // MPI_Datatype mpi_ind_and_val;
         // // MPI_Datatype types[2] = {MPI_DOUBLE, MPI_INT};
