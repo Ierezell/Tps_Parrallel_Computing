@@ -121,28 +121,19 @@ void invertParallel(Matrix &matrice)
     MatrixConcatCols matrice_et_id(matrice, MatrixIdentity(matrice.rows()));
 
     // Debut de l'algorithme
-    for (size_t idx_ligne = 0; idx_ligne < matrice.rows(); ++idx_ligne)
+    //for (size_t idx_ligne = 0; idx_ligne < matrice.rows(); ++idx_ligne)
+    for (size_t idx_ligne = 0; idx_ligne < 2; ++idx_ligne)
     {
         // Répartit les indices des colonnes dans les processeurs
         map<double, int> subMatrice_Col_Value;
         for (size_t idx_ligne_rest = idx_ligne; idx_ligne_rest < matrice.rows(); ++idx_ligne_rest)
             if (world_rank == (idx_ligne_rest % world_size))
                 subMatrice_Col_Value.insert(pair<double, int>(matrice(idx_ligne_rest, idx_ligne), idx_ligne_rest));
-        cout << "Ma indices sont : ";
-        for (const auto &p : subMatrice_Col_Value)
-            cout << "Rank : " << world_rank << "  dico[" << p.first << "] = " << p.second << "       ";
-        cout << endl;
 
-        // // Renvoie l'indice du maximum et sa valeur pour les lignes sous la ligne courante
-        // // first insert function version (single parameter):
-        // // vector<double>::iterator iter_max = max_element(subMatrice_Col_Value.begin(), subMatrice_Col_Value.end());
-        // // pivot.index = distance(subMatrice_Pivot_Value.begin(), iter_max);
-        // ind_and_val max_pivot_et_rang;
-
-        // //pivot.value = *iter_max;
-        // // ligne_ind_val.index = idx_ligne;
-        // // ligne.ind_val.value = matrice(idx_ligne, idx_ligne);
-        // MPI::COMM_WORLD.Allreduce(&subMatrice_Col_Value.rbegin()->first, &max_pivot_et_rang.value, 1, MPI_DOUBLE_INT, MPI_MAXLOC);
+        ind_and_val max_pivot_et_rang;
+        cout << idx_ligne << "  " << world_rank << " : " << max_pivot_et_rang.value << " : " << max_pivot_et_rang.index << endl;
+        MPI::COMM_WORLD.Allreduce(&subMatrice_Col_Value.rbegin()->first, &max_pivot_et_rang.value, 1, MPI_DOUBLE_INT, MPI_MAXLOC);
+        cout << idx_ligne << "  " << world_rank << " / " << max_pivot_et_rang.value << " / " << max_pivot_et_rang.index << endl;
 
         // if (world_rank == max_pivot_et_rang.index)
         //     MPI::COMM_WORLD.Bcast(&max_pivot_et_rang.index, 1, MPI_INT, world_rank);
@@ -332,3 +323,11 @@ int main(int argc, char **argv)
 //     MPI::COMM_WORLD.Recv((void *)ligne_rcv, sizeof(matData), matData, idx_pivot % world_size);
 //     MPI::COMM_WORLD.Send((void *)ligne_send, sizeof(matData), matData, idx_ligne % world_size);
 // }
+
+// Renvoie l'indice du maximum et sa valeur pour les lignes sous la ligne courante
+// vector<double>::iterator iter_max = max_element(subMatrice_Col_Value.begin(), subMatrice_Col_Value.end());
+// pivot.index = distance(subMatrice_Pivot_Value.begin(), iter_max);
+
+//pivot.value = *iter_max;
+// ligne_ind_val.index = idx_ligne;
+// ligne.ind_val.value = matrice(idx_ligne, idx_ligne);
