@@ -99,13 +99,6 @@ typedef struct ind_and_val
 // Inverser la matrice par la méthode de Gauss-Jordan; implantation MPI parallèle.
 void invertParallel(Matrix &matrice)
 {
-    //cout << matrice.str() << endl;
-    // Type de donnée d'une ligne de matrice
-    typedef valarray<double> matData;
-    // Structure pour trouver le maximum
-
-    MPI_Datatype ind_et_val_types[2] = {MPI_DOUBLE, MPI_INT};
-
     MPI::Init();
     MPI::Status status;
     // Nombre de processus
@@ -122,7 +115,7 @@ void invertParallel(Matrix &matrice)
 
     // Debut de l'algorithme
     //for (size_t idx_ligne = 0; idx_ligne < matrice.rows(); ++idx_ligne)
-    for (size_t idx_ligne = 0; idx_ligne < 2; ++idx_ligne)
+    for (size_t idx_ligne = 0; idx_ligne < 1; ++idx_ligne)
     {
         // Répartit les indices des colonnes dans les processeurs
         map<double, int> subMatrice_Col_Value;
@@ -131,132 +124,102 @@ void invertParallel(Matrix &matrice)
                 subMatrice_Col_Value.insert(pair<double, int>(matrice(idx_ligne_rest, idx_ligne), idx_ligne_rest));
 
         ind_and_val max_pivot_et_rang;
-        cout << idx_ligne << "  " << world_rank << " : " << max_pivot_et_rang.value << " : " << max_pivot_et_rang.index << endl;
 
         MPI::COMM_WORLD.Allreduce(&subMatrice_Col_Value.rbegin()->first, &max_pivot_et_rang.value, 1, MPI_DOUBLE_INT, MPI_MAXLOC);
         if (world_rank == max_pivot_et_rang.index)
             MPI::COMM_WORLD.Bcast(&max_pivot_et_rang.index, 1, MPI_INT, world_rank);
 
-        cout << idx_ligne << "  " << world_rank << " / " << max_pivot_et_rang.value << " / " << max_pivot_et_rang.index << endl;
+        //Vérifier que la matrice n'est pas singulière
+        if (matrice(max_pivot_et_rang.index, idx_ligne) == 0)
+            throw runtime_error("Matrix not invertible");
+        cout << "Avant :\n"
+             << matrice_et_id.str() << endl;
+        // Échanger la ligne courante avec celle du pivot
+        if (max_pivot_et_rang.index != idx_ligne)
+        {
+            // Si l'indice de la ligne et celui du pivot appartiennent au meme processeur, operation immediate...
+            if ((idx_ligne % world_size == max_pivot_et_rang.index % world_size) &&
+                (max_pivot_et_rang.index % world_size == world_rank)) //effectuée par le processus
+            {
+                cout << matrice_et_id.str() << endl;
+                matrice_et_id.swapRows(max_pivot_et_rang.index, idx_ligne);
+                cout << "Ligne  " << idx_ligne << "  pivot rk : " << max_pivot_et_rang.index % world_size << "  ligne rk : " << idx_ligne % world_size << "  rk  : " << world_rank << "Changement de ligne fait sur le même process" << endl;
+                cout << matrice_et_id.str() << endl;
+            }
+            // ... sinon, communication point à point entre les 2 processus concernés
+            else
+            {
+                //         // if (max_pivot_et_rang.index % world_size == world_rank)
+                //         //     cout << "Je suis le pivot et je sendrecv" << endl;
+                cout << (idx_ligne % world_size) << " l " << world_rank << endl;
+                cout << (max_pivot_et_rang.index % world_size) << " p " << world_rank << endl;
 
-        // // MPI_Datatype mpi_ind_and_val;
-        // // MPI_Datatype types[2] = {MPI_DOUBLE, MPI_INT};
-        // // MPI_Aint disps[2] = {offsetof(ind_and_val, val),
-        // //                      offsetof(ind_and_val, index)};
-        // // MPI_Type_create_struct(2, lens, disps, types, &mpi_dbl_twoindex);
-        // // MPI_Type_commit(&mpi_dbl_twoindex);
-        // // MPI_Op mpi_minloc_dbl_twoindex;
-        // // MPI_Op_create(minloc_dbl_twoindex, 1, &mpi_minloc_dbl_twoindex);
-
-        // // Vérifier que la matrice n'est pas singulière
-        // // if (matrice_et_id(max_pivot_et_rang.index, idx_ligne) == 0)
-        // //     throw runtime_error("Matrix not invertible");
-
-        // // Échanger la ligne courante avec celle du pivot
-        // // if (world_rank == 0)
-        // //     cout << matrice.str() << endl;
-        // // cout << "pivot idx : " << max_pivot_et_rang.index << "  pivot val : " << max_pivot_et_rang.value << "  ligne idx  " << idx_ligne << endl;
-        // if (max_pivot_et_rang.index != idx_ligne)
-        // {
-        //     // Si l'indice de la ligne et celui du pivot appartiennent au meme processeur, operation immediate...
-        //     cout << "Ligne  " << idx_ligne << "  pivot rk : " << max_pivot_et_rang.index % world_size << "  ligne rk : " << idx_ligne % world_size << "  rk  : " << world_rank << endl;
-        //     if ((idx_ligne % world_size == max_pivot_et_rang.index % world_size) &&
-        //         (max_pivot_et_rang.index % world_size == world_rank)) //effectuée par le processus
-        //     {
-        //         matrice_et_id.swapRows(max_pivot_et_rang.index, idx_ligne);
-        //         cout << "Ligne  " << idx_ligne << "  pivot rk : " << max_pivot_et_rang.index % world_size << "  ligne rk : " << idx_ligne % world_size << "  rk  : " << world_rank << "Changement de ligne fait sur le même process" << endl;
-        //         // cout << matrice_et_id.str() << endl;
-        //     }
-        //     // ... sinon, communication point à point entre les 2 processus concernés
-        //     else
-        //     {
-        //         //cout << " Ligne    :   " << idx_ligne << endl;
-        //         // int rank_pivot = max_pivot_et_rang.index % world_size;
-        //         // int rank_ligne = idx_ligne % world_size;
-
-        //         // valarray<double> line_to_swap = matrice_et_id.getRowSlice(idx_ligne);
-        //         // if (max_pivot_et_rang.index % world_size == world_rank)
-        //         //     cout << "Je suis le pivot et je sendrecv" << endl;
-        //         // if (max_pivot_et_rang.index % world_size == world_rank)
-        //         //     MPI::COMM_WORLD.Sendrecv_replace((void *)&line_to_swap, line_to_swap.size(), MPI::DOUBLE, idx_ligne % world_size, 666, max_pivot_et_rang.index % world_size, 666, status);
-        //         if (world_rank == (idx_ligne % world_size))
-        //         {
-        //             //cout << "Je suis pas le pivot je récupère celle du pivot" << endl;
-        //             valarray<double> ligne_pas_pivot = matrice_et_id.getRowSlice(idx_ligne);
-        //             valarray<double> ligne_pivot(ligne_pas_pivot);
-        //             // for (auto i : ligne_pivot)
-        //             //     cout << "before send : " << i << "  ";
-        //             // for (auto i : ligne_pas_pivot)
-        //             //     cout << "Pas pivot " << i << ' ';
-        //             // for (auto i : ligne_pivot)
-        //             //     cout << "Pivot : " << i << ' ';
-        //             // cout << endl;
-        //             // cout << "Je vais envoyer ma ligne au pivot" << endl;
-        //             //MPI::COMM_WORLD.Send((void *)&ligne_pas_pivot, ligne_pas_pivot.size(), MPI::DOUBLE, max_pivot_et_rang.index % world_size, 42);
-        //             // cout << "J'ai envoyé ma ligne au pivot" << endl;
-        //             // cout << "Je vais recevoir la ligne du pivot" << endl;
-        //             //MPI::COMM_WORLD.Recv((void *)&ligne_pivot, ligne_pivot.size(), MPI::DOUBLE, max_pivot_et_rang.index % world_size, 666);
-        //             // cout << "J'ai reçu la ligne du pivot" << endl;
-        //             // for (auto i : ligne_pivot)
-        //             //     cout << "after send : " << i << "  ";
-        //             //matrice_et_id.getRowSlice(idx_ligne) = ligne_pivot;
-        //             //cout << "J'ai changé ma ligne'" << endl;
-        //         }
-        //         if (world_rank == (max_pivot_et_rang.index % world_size))
-        //         {
-        //             cout << "Je suis le pivot je récupère l'autre" << endl;
-        //             valarray<double> ligne_pivot = matrice_et_id.getRowSlice(max_pivot_et_rang.index);
-        //             valarray<double> ligne_pas_pivot(ligne_pivot);
-
-        //             // cout << "Je vais envoyer ma ligne a l'autre" << endl;
-        //             //MPI::COMM_WORLD.Recv((void *)&ligne_pas_pivot, ligne_pas_pivot.size(), MPI::DOUBLE, idx_ligne % world_size, 42);
-        //             // cout << "J'ai envoyé ma ligne a l'autre" << endl;
-        //             // cout << "Je vais recevoir la ligne de l'autre" << endl;
-        //             //MPI::COMM_WORLD.Send((void *)&ligne_pivot, ligne_pivot.size(), MPI_DOUBLE, idx_ligne % world_size, 666);
-        //             // cout << "J'ai reçu la ligne de l'autre" << endl;
-
-        //             //matrice_et_id.getRowSlice(max_pivot_et_rang.index) = ligne_pas_pivot;
-        //             //cout << "J'ai changé ma ligne pivtor'" << endl;
-        //             //usleep(10000000);
-        //         }
-        //     }
-        // }
-        // cout << "\n\n\n\n\n";
-        // cout << "process  " << world_rank << endl;
-        // cout << "LA MATRICE A ETE CHANGÉE" << endl;
-        // cout << "Le pivot etait : " << max_pivot_et_rang.value << "  Indice  :  " << max_pivot_et_rang.index << endl;
-        // cout << "MAtrice : \n"
-        //      << matrice_et_id.str() << endl;
-        //     //broadcast de la ligne idx_ligne à tous les processeurs...
-        //     if (idx_ligne % world_size == world_rank)
-        //     {
-        //         valarray<double> ligne_bcast = matrice.getRowCopy(idx_ligne);
-        //         MPI::COMM_WORLD.Bcast(&ligne_bcast, sizeof(valarray<double>), MPI_DOUBLE, world_rank);
-        //     }
-        //     int i = 0;
-        //     for (i = 0; i < matrice.rows(); i++)
-        //     {
-        //         if (i % world_size == world_rank || i != idx_ligne)
-        //         {
-        //             //...qui calculent le facteur d'élimination l(ik) = A(ik)/A(kk)...  (equation 7.2)
-        //             double fact_elim = matrice(idx_ligne, idx_ligne) / matrice(idx_ligne, idx_ligne);
-        //             //...et effectuent l'élimination A(ij) = A(ij)-l(ik)A(kj)  (equation 7.3)
-        //             matrice.getRowSlice(i) = matrice.getRowCopy(i) - fact_elim * matrice.getRowCopy(idx_ligne);
-        //         }
-        //         else if (i % world_size == world_rank || i == idx_ligne)
-        //         {
-        //             valarray<double> fact_elim(matrice.cols(), matrice(idx_ligne, idx_ligne));
-        //             matrice.getRowSlice(i) /= fact_elim;
-        //         }
-        //     }
-        // }
-        // if (world_rank == 0)
-        // {
-        //     cout << matrice.str() << endl;
-        //     cout << matrice_et_id.str() << endl;
-        // }
+                if ((idx_ligne % world_size) == world_rank)
+                {
+                    valarray<double> ligne_pas_pivot(matrice_et_id.getRowCopy(idx_ligne));
+                    valarray<double> ligne_pivot(ligne_pas_pivot);
+                    // for (auto i : ligne_pivot)
+                    //     cout << "v-l : " << i << " ";
+                    // cout << endl;
+                    MPI::COMM_WORLD.Send((void *)&ligne_pas_pivot[0], ligne_pas_pivot.size(), MPI::DOUBLE, max_pivot_et_rang.index % world_size, 42);
+                    MPI::COMM_WORLD.Recv((void *)&ligne_pivot[0], ligne_pivot.size(), MPI::DOUBLE, max_pivot_et_rang.index % world_size, 666);
+                    matrice_et_id.getRowSlice(idx_ligne) = ligne_pivot;
+                    // valarray<double> ligne_test(matrice_et_id.getRowCopy(idx_ligne));
+                    // for (auto i : ligne_pivot)
+                    //     cout << "p-l : " << i << " ";
+                    // cout << endl;
+                }
+                else if ((max_pivot_et_rang.index % world_size) == world_rank)
+                {
+                    valarray<double> ligne_pivot(matrice_et_id.getRowCopy(max_pivot_et_rang.index));
+                    valarray<double> ligne_pas_pivot(ligne_pivot);
+                    // for (auto i : ligne_pas_pivot)
+                    //     cout << "v-p : " << i << " ";
+                    // cout << endl;
+                    MPI::COMM_WORLD.Recv((void *)&ligne_pas_pivot[0], ligne_pas_pivot.size(), MPI::DOUBLE, idx_ligne % world_size, 42);
+                    MPI::COMM_WORLD.Send((void *)&ligne_pivot[0], ligne_pivot.size(), MPI_DOUBLE, idx_ligne % world_size, 666);
+                    matrice_et_id.getRowSlice(max_pivot_et_rang.index) = ligne_pas_pivot;
+                    // valarray<double> ligne_test(matrice_et_id.getRowCopy(max_pivot_et_rang.index));
+                    // for (auto i : ligne_test)
+                    //     cout << "p-p : " << i << " ";
+                    // cout << endl;
+                }
+            }
+        }
+        else
+        {
+            cout << "pivot == ligne courante" << endl;
+        }
+        cout << "Le pivot etait : " << max_pivot_et_rang.value << "  Indice  :  " << max_pivot_et_rang.index << "\n"
+             << matrice_et_id.str() << endl;
+        //broadcast de la ligne idx_ligne à tous les processeurs...
+        valarray<double> ligne_bcast(matrice.getRowCopy(idx_ligne));
+        if (idx_ligne % world_size == world_rank)
+        {
+            MPI::COMM_WORLD.Bcast((void *)&ligne_bcast[0], ligne_bcast.size(), MPI_DOUBLE, world_rank);
+        }
+        for (size_t idx_ligne_rest = idx_ligne; idx_ligne_rest < matrice.rows(); idx_ligne_rest++)
+        {
+            valarray<double> ligne_modified(matrice.getRowSlice(idx_ligne_rest));
+            if ((idx_ligne_rest % world_size) == world_rank || idx_ligne_rest != idx_ligne)
+            {
+                //...qui calculent le facteur d'élimination l(ik) = A(ik)/A(kk)...  (equation 7.2)
+                double fact_elim = matrice(idx_ligne_rest, max_pivot_et_rang.index) / max_pivot_et_rang.value;
+                //...et effectuent l'élimination A(ij) = A(ij)-l(ik)A(kj)  (equation 7.3)
+                valarray<double> array_fact_elim(fact_elim, matrice_et_id.cols());
+                ligne_modified -= array_fact_elim * ligne_bcast;
+                MPI::COMM_WORLD.Bcast((void *)&ligne_modified[0], ligne_modified.size(), MPI_DOUBLE, world_rank);
+            }
+            else if ((idx_ligne_rest % world_size) == world_rank || idx_ligne_rest == idx_ligne)
+            {
+                valarray<double> fact_elim(matrice(idx_ligne, idx_ligne), matrice.cols());
+                ligne_modified /= fact_elim;
+                MPI::COMM_WORLD.Bcast((void *)&ligne_modified[0], ligne_modified.size(), MPI_DOUBLE, world_rank);
+            }
+            matrice.getRowSlice(idx_ligne_rest) = ligne_modified;
+        }
+        MPI::Finalize();
     }
-    MPI::Finalize();
 }
 
 // Multiplier deux matrices.
@@ -332,3 +295,16 @@ int main(int argc, char **argv)
 //pivot.value = *iter_max;
 // ligne_ind_val.index = idx_ligne;
 // ligne.ind_val.value = matrice(idx_ligne, idx_ligne);
+
+// MPI_Datatype mpi_ind_and_val;
+// MPI_Datatype types[2] = {MPI_DOUBLE, MPI_INT};
+// MPI_Aint disps[2] = {offsetof(ind_and_val, val),
+//                      offsetof(ind_and_val, index)};
+// MPI_Type_create_struct(2, lens, disps, types, &mpi_dbl_twoindex);
+// MPI_Type_commit(&mpi_dbl_twoindex);
+// MPI_Op mpi_minloc_dbl_twoindex;
+// MPI_Op_create(minloc_dbl_twoindex, 1, &mpi_minloc_dbl_twoindex);
+
+// int rank_pivot = max_pivot_et_rang.index % world_size;
+// int rank_ligne = idx_ligne % world_size;
+// MPI::COMM_WORLD.Sendrecv_replace((void *)&line_to_swap, line_to_swap.size(), MPI::DOUBLE, max_pivot_et_rang.index % world_size, 666, idx_ligne % world_size, 666, status);
