@@ -190,34 +190,34 @@ void invertParallel(Matrix &matrice)
         {
             cout << "pivot == ligne courante" << endl;
         }
-        cout << "Le pivot etait : " << max_pivot_et_rang.value << "  Indice  :  " << max_pivot_et_rang.index << "\n"
-             << matrice_et_id.str() << endl;
         //broadcast de la ligne idx_ligne à tous les processeurs...
-        valarray<double> ligne_bcast(matrice.getRowCopy(idx_ligne));
+        valarray<double> ligne_bcast(matrice_et_id.getRowCopy(idx_ligne));
         if (idx_ligne % world_size == world_rank)
         {
             MPI::COMM_WORLD.Bcast((void *)&ligne_bcast[0], ligne_bcast.size(), MPI_DOUBLE, world_rank);
         }
         for (size_t idx_ligne_rest = idx_ligne; idx_ligne_rest < matrice.rows(); idx_ligne_rest++)
         {
-            valarray<double> ligne_modified(matrice.getRowSlice(idx_ligne_rest));
+            valarray<double> ligne_modified(matrice_et_id.getRowSlice(idx_ligne_rest));
             if ((idx_ligne_rest % world_size) == world_rank || idx_ligne_rest != idx_ligne)
             {
                 //...qui calculent le facteur d'élimination l(ik) = A(ik)/A(kk)...  (equation 7.2)
                 double fact_elim = matrice(idx_ligne_rest, max_pivot_et_rang.index) / max_pivot_et_rang.value;
                 //...et effectuent l'élimination A(ij) = A(ij)-l(ik)A(kj)  (equation 7.3)
-                valarray<double> array_fact_elim(fact_elim, matrice_et_id.cols());
+                valarray<double> array_fact_elim(fact_elim, matrice_et_id.rows());
                 ligne_modified -= array_fact_elim * ligne_bcast;
                 MPI::COMM_WORLD.Bcast((void *)&ligne_modified[0], ligne_modified.size(), MPI_DOUBLE, world_rank);
             }
             else if ((idx_ligne_rest % world_size) == world_rank || idx_ligne_rest == idx_ligne)
             {
-                valarray<double> fact_elim(matrice(idx_ligne, idx_ligne), matrice.cols());
+                valarray<double> fact_elim(matrice(idx_ligne, idx_ligne), matrice.rows());
                 ligne_modified /= fact_elim;
                 MPI::COMM_WORLD.Bcast((void *)&ligne_modified[0], ligne_modified.size(), MPI_DOUBLE, world_rank);
             }
-            matrice.getRowSlice(idx_ligne_rest) = ligne_modified;
+            matrice_et_id.getRowSlice(idx_ligne_rest) = ligne_modified;
         }
+        cout << "Le pivot etait : " << max_pivot_et_rang.value << "  Indice  :  " << max_pivot_et_rang.index << "\n"
+             << matrice_et_id.str() << endl;
         MPI::Finalize();
     }
 }
