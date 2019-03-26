@@ -227,9 +227,9 @@ int main(int argc, char **argv)
     }
 
     MatrixRandom matrice(taille_mat, taille_mat);
-
-    Matrix mat_Inv_Seq(matrice);
     Chrono chron = Chrono();
+    // Algorithme sequentiel
+    Matrix mat_Inv_Seq(matrice);
     float tic_seq = chron.get();
     invertSequential(mat_Inv_Seq);
     float tac_seq = chron.get();
@@ -245,8 +245,8 @@ int main(int argc, char **argv)
     cout << "Erreur sequentielle: " << res_Seq.getDataArray().sum() - taille_mat << endl
          << endl;
     cout << "Temps sequentiel : " << tac_seq - tic_seq << "secondes" << endl;
-
-    Matrix mat_Inv_Par(matrice);
+    Algorithme parallele
+        Matrix mat_Inv_Par(matrice);
     float tic_par = chron.get();
     invertParallel(mat_Inv_Par);
     float tac_par = chron.get();
@@ -259,8 +259,8 @@ int main(int argc, char **argv)
     //      << res_Par.str() << endl
     //      << endl;
 
+    cout << "Temps parallele : " << tac_par - tic_par << "secondes" << endl;
     cout << "Erreur parallèle: " << res_Par.getDataArray().sum() - taille_mat << endl
          << endl;
-    cout << "Temps parallele : " << tac_par - tic_par << "secondes" << endl;
     return 0;
 }
