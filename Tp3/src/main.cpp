@@ -90,53 +90,33 @@ void invertParallel(Matrix &matrice)
 
     // Vérifier que la matrice est carrée
     assert(matrice.rows() == matrice.cols());
-    // Concatener la matrice à la matrice Identitée [ A I ]
+    // Concatener la matrice à la matrice Identitée pour donner [ A I ]
     MatrixConcatCols matrice_et_id(matrice, MatrixIdentity(matrice.rows()));
-    cout << matrice_et_id.str() << endl
-         << endl;
 
     // Debut de l'algorithme
     for (size_t idx_ligne = 0; idx_ligne < matrice.rows(); ++idx_ligne)
     {
         // Répartit les indices des lignes dans les processeurs grâce à un map (dictionnaire)
         map<double, int> dic_Values_col;
-        for (size_t idx_ligne_rest = 0; idx_ligne_rest < matrice.rows(); ++idx_ligne_rest)
-            if (world_rank == (idx_ligne_rest % world_size))
+        for (size_t idx_ligne_rest = idx_ligne; idx_ligne_rest < matrice.rows(); ++idx_ligne_rest)
+            if ((world_rank == (idx_ligne_rest % world_size)))
                 dic_Values_col.insert(pair<double, int>(matrice_et_id(idx_ligne_rest, idx_ligne), idx_ligne_rest));
-        // else if ((matrice.rows() - idx_ligne) < world_size)
-        //     dic_Values_col.insert(pair<double, int>(-1000000, 0));
+            else if ((matrice.rows() - idx_ligne) < world_size)
+                dic_Values_col.insert(pair<double, int>(-1000000, 0));
 
         struct ind_and_val
         {
             double value;
             int index;
         } pivot;
-        // vector<double> vals_pivot;
-        // for (size_t idx_ligne_rest = idx_ligne; idx_ligne_rest < matrice.rows(); ++idx_ligne_rest)
-        // {
-        //     if ((idx_ligne_rest % world_size) == world_rank)
-        //         vals_pivot.push_back(matrice(idx_ligne_rest, idx_ligne));
-        // }
-        // // Structure pour avoir l'index et la valeur du pivot
-        // vector<double>::iterator iter_max = max_element(vals_pivot.begin(), vals_pivot.end());
-        // pivot.value = *iter_max;
-        // pivot.index = distance(vals_pivot.begin(), iter_max);
 
         // Chaque processus ayant ses lignes dans un map celles-ci sont ordonées.
         // On réduit donc sur le max de chaque process qui est le 1er element de son dictionnnaire
         MPI::COMM_WORLD.Allreduce(&dic_Values_col.rbegin()->first, &pivot, 1, MPI_DOUBLE_INT, MPI_MAXLOC);
-        //MPI::COMM_WORLD.Allreduce(&pivot.value, &pivot.value, 1, MPI_DOUBLE_INT, MPI_MAXLOC);
-        cout << "PIVOT : Valeur : " << pivot.value << "   Index  : " << pivot.index << endl;
-        // Il est trop difficile de réduire des structures compliquées alors on réduit et partage (allreduce) la valeur.
-        // Celui qui possède le pivot avec la valeur réduite broadcast donc son index a tout les autres.
-        // if (world_rank == pivot.index)
-        //     MPI::COMM_WORLD.Bcast(&pivot.index, 1, MPI_INT, world_rank);
-        // EN FAIT LE REDUCE PREND AUSSI L'INDEX MAIS JE SAIS PAS POURQUOI :O ptet que c'est lié au dico...
 
-        //Vérifier que la matrice n'est pas singulière
-        if (world_rank == idx_ligne)
-            if (matrice(pivot.index, idx_ligne) == 0)
-                throw runtime_error("Matrix not invertible");
+        //Vérifier que la matrice n'est pas singulière : Erreur à 1e-14 près
+        if ((pivot.value < 0.00000000000001) && (-0.00000000000001 < pivot.value))
+            throw runtime_error("Matrix not invertible");
 
         // Échanger la ligne courante avec celle du pivot
         if (pivot.index != idx_ligne)
@@ -144,12 +124,12 @@ void invertParallel(Matrix &matrice)
             // Si l'indice de la ligne et celui du pivot appartiennent au meme processeur, operation immediate...
             if ((idx_ligne % world_size == pivot.index % world_size) && (pivot.index % world_size == world_rank))
             {
+                // On échange et on normalise
                 matrice_et_id.swapRows(pivot.index, idx_ligne);
                 for (size_t j = 0; j < matrice_et_id.cols(); ++j)
                     matrice_et_id(idx_ligne, j) /= pivot.value;
             }
             // ... sinon, communication point à point entre les 2 processus concernés
-            // A ESSAYER AVEC UN SENDRECV_REPLACE
             else
             {
                 if ((idx_ligne % world_size) == world_rank)
@@ -158,17 +138,20 @@ void invertParallel(Matrix &matrice)
                     valarray<double> ligne_pivot_norm(ligne_pas_pivot);
                     MPI::COMM_WORLD.Send((void *)&ligne_pas_pivot[0], ligne_pas_pivot.size(), MPI::DOUBLE, pivot.index % world_size, 42);
                     MPI::COMM_WORLD.Recv((void *)&ligne_pivot_norm[0], ligne_pivot_norm.size(), MPI::DOUBLE, pivot.index % world_size, 666);
+                    // On remplace les lignes (comme un matrice.swapRows)
                     matrice_et_id.getRowSlice(idx_ligne) = ligne_pivot_norm;
                     matrice_et_id.getRowSlice(pivot.index) = ligne_pas_pivot;
                 }
                 else if ((pivot.index % world_size) == world_rank)
                 {
+                    // On normalise le pivot avant de l'envoyer
                     for (size_t j = 0; j < matrice_et_id.cols(); ++j)
                         matrice_et_id(pivot.index, j) /= pivot.value;
                     valarray<double> ligne_pivot_norm(matrice_et_id.getRowSlice(pivot.index));
                     valarray<double> ligne_pas_pivot(ligne_pivot_norm);
                     MPI::COMM_WORLD.Recv((void *)&ligne_pas_pivot[0], ligne_pas_pivot.size(), MPI::DOUBLE, idx_ligne % world_size, 42);
                     MPI::COMM_WORLD.Send((void *)&ligne_pivot_norm[0], ligne_pivot_norm.size(), MPI_DOUBLE, idx_ligne % world_size, 666);
+                    // On remplace les lignes (comme un matrice.swapRows)
                     matrice_et_id.getRowSlice(pivot.index) = ligne_pas_pivot;
                     matrice_et_id.getRowSlice(idx_ligne) = ligne_pivot_norm;
                 }
@@ -176,15 +159,13 @@ void invertParallel(Matrix &matrice)
         }
         else
         {
-            cout << "WHAAAAAAAAAAAAA" << endl;
             if ((pivot.index % world_size) == world_rank)
                 for (size_t j = 0; j < matrice_et_id.cols(); ++j)
                     matrice_et_id(idx_ligne, j) /= pivot.value;
         }
-        // Broadcast de la ligne idx_ligne à tous les autres processeurs... (soit la ligne du pivot)
+        // Broadcast de la ligne idx_ligne (soit la ligne du pivot) à tous les autres processeurs...
         valarray<double> ligne_pivot_broadcast(matrice_et_id.getRowSlice(idx_ligne));
         MPI::COMM_WORLD.Bcast((void *)&ligne_pivot_broadcast[0], ligne_pivot_broadcast.size(), MPI_DOUBLE, idx_ligne % world_size);
-        //matrice_et_id.getRowSlice(idx_ligne) = ligne_pivot_broadcast;
 
         // Fait les opérations de gauss sur les lignes restantes
         for (size_t idx_ligne_rest = 0; idx_ligne_rest < matrice_et_id.rows(); idx_ligne_rest++)
@@ -193,20 +174,18 @@ void invertParallel(Matrix &matrice)
             {
                 //...qui calculent le facteur d'élimination l(ik) = A(ik)/A(kk)...  (equation 7.2)
                 //...et effectuent l'élimination A(ij) = A(ij)-l(ik)A(kj)  (equation 7.3)
-                // valarray<double> array_fact_elim(fact_elim, matrice_et_id.rows());
+                double fact_elim = matrice_et_id(idx_ligne_rest, idx_ligne);
                 for (size_t j = 0; j < matrice_et_id.cols(); ++j)
-                    matrice_et_id(idx_ligne_rest, j) -= matrice_et_id(idx_ligne_rest, idx_ligne) * ligne_pivot_broadcast[j];
+                    matrice_et_id(idx_ligne_rest, j) -= ligne_pivot_broadcast[j] * fact_elim;
             }
         }
-        cout << matrice_et_id.str() << endl
-             << endl;
         // Puis broadcast pour que tout les processus aient une matrice à jour
-        // for (size_t idx_ligne_rest = 0; idx_ligne_rest < matrice_et_id.rows(); idx_ligne_rest++)
-        // {
-        //     valarray<double> ligne_modified = matrice_et_id.getRowSlice(idx_ligne_rest);
-        //     MPI::COMM_WORLD.Bcast((void *)&ligne_modified[0], ligne_modified.size(), MPI_DOUBLE, idx_ligne_rest % world_size);
-        //     matrice_et_id.getRowSlice(idx_ligne_rest) = ligne_modified;
-        // }
+    }
+    for (size_t idx_ligne_rest = 0; idx_ligne_rest < matrice_et_id.rows(); idx_ligne_rest++)
+    {
+        valarray<double> ligne_modified = matrice_et_id.getRowSlice(idx_ligne_rest);
+        MPI::COMM_WORLD.Bcast((void *)&ligne_modified[0], ligne_modified.size(), MPI_DOUBLE, idx_ligne_rest % world_size);
+        matrice_et_id.getRowSlice(idx_ligne_rest) = ligne_modified;
     }
     MPI::Finalize();
     // On copie la partie droite de la matrice AI ainsi transformée dans la matrice courante.
@@ -248,8 +227,6 @@ int main(int argc, char **argv)
     }
 
     MatrixRandom matrice(taille_mat, taille_mat);
-    // cout << "Matrice random:\n"
-    //  << matrice.str() << endl;
 
     Matrix mat_Inv_Seq(matrice);
     Chrono chron = Chrono();
@@ -287,58 +264,3 @@ int main(int argc, char **argv)
     cout << "Temps parallele : " << tac_par - tic_par << "secondes" << endl;
     return 0;
 }
-
-// if (idx_ligne % world_size == world_rank)
-// {
-//     matData ligne_pas_pivot = matrice.getRowCopy();
-//     matData ligne_pivot;
-//     MPI::COMM_WORLD.Send((void *)ligne_pas_pivot, sizeof(matData), matData, idx_pivot % world_size);
-//     MPI::COMM_WORLD.Recv((void *)ligne_pivot, sizeof(matData), matData, idx_pivot % world_size);
-// }
-// matrice_et_id.swapRows(idx_pivot, idx_ligne);
-// if (idx_pivot % world_size == world_rank)
-// {
-//     matData ligne_pivot;
-//     ;
-//     matData ligne_pas_pivot = matrice.getRowCopy();
-//     MPI::COMM_WORLD.Recv((void *)ligne_rcv, sizeof(matData), matData, idx_pivot % world_size);
-//     MPI::COMM_WORLD.Send((void *)ligne_send, sizeof(matData), matData, idx_ligne % world_size);
-// }
-
-// Renvoie l'indice du maximum et sa valeur pour les lignes sous la ligne courante
-// vector<double>::iterator iter_max = max_element(subMatrice_Col_Values.begin(), subMatrice_Col_Values.end());
-// pivot.index = distance(subMatrice_Pivot_Value.begin(), iter_max);
-
-//pivot.value = *iter_max;
-// ligne_ind_val.index = idx_ligne;
-// ligne.ind_val.value = matrice(idx_ligne, idx_ligne);
-
-// MPI_Datatype mpi_ind_and_val;
-// MPI_Datatype types[2] = {MPI_DOUBLE, MPI_INT};
-// MPI_Aint disps[2] = {offsetof(ind_and_val, val),
-//                      offsetof(ind_and_val, index)};
-// MPI_Type_create_struct(2, lens, disps, types, &mpi_dbl_twoindex);
-// MPI_Type_commit(&mpi_dbl_twoindex);
-// MPI_Op mpi_minloc_dbl_twoindex;
-// MPI_Op_create(minloc_dbl_twoindex, 1, &mpi_minloc_dbl_twoindex);
-
-// int rank_pivot = pivot.index % world_size;
-// int rank_ligne = idx_ligne % world_size;
-// MPI::COMM_WORLD.Sendrecv_replace((void *)&line_to_swap, line_to_swap.size(), MPI::DOUBLE, pivot.index % world_size, 666, idx_ligne % world_size, 666, status);
-
-// void maxloc_idx_val(void *in, void *inout, int *len, MPI_Datatype *type)
-// {
-//     /* ignore type, just trust that it's our dbl_twoindex type */
-//     ind_and_val *invals = in;
-//     ind_and_val *inoutvals = inout;
-
-//     for (int i = 0; i < *len; i++)
-//     {
-//         if (invals[i].value > inoutvals[i].value)
-//         {
-//             inoutvals[i].value = invals[i].value;
-//             inoutvals[i].index = invals[i].index;
-//         }
-//     }
-//     return;
-// }
