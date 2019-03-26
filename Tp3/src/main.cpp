@@ -167,20 +167,20 @@ void invertParallel(Matrix &matrice)
         valarray<double> ligne_pivot_broadcast(matrice_et_id.getRowSlice(idx_ligne));
         MPI::COMM_WORLD.Bcast((void *)&ligne_pivot_broadcast[0], ligne_pivot_broadcast.size(), MPI_DOUBLE, idx_ligne % world_size);
 
-        // Fait les opérations de gauss sur les lignes restantes
+        // Fait les opérations de gauss sur les lignes
         for (size_t idx_ligne_rest = 0; idx_ligne_rest < matrice_et_id.rows(); idx_ligne_rest++)
         {
             if (((idx_ligne_rest % world_size) == world_rank) && (idx_ligne_rest != idx_ligne))
             {
                 //...qui calculent le facteur d'élimination l(ik) = A(ik)/A(kk)...  (equation 7.2)
-                //...et effectuent l'élimination A(ij) = A(ij)-l(ik)A(kj)  (equation 7.3)
                 double fact_elim = matrice_et_id(idx_ligne_rest, idx_ligne);
+                //...et effectuent l'élimination A(ij) = A(ij)-l(ik)A(kj)  (equation 7.3)
                 for (size_t j = 0; j < matrice_et_id.cols(); ++j)
                     matrice_et_id(idx_ligne_rest, j) -= ligne_pivot_broadcast[j] * fact_elim;
             }
         }
-        // Puis broadcast pour que tout les processus aient une matrice à jour
     }
+    // A la fin on broadcast to les résultats individuels pour avoir la matrice finalle totale
     for (size_t idx_ligne_rest = 0; idx_ligne_rest < matrice_et_id.rows(); idx_ligne_rest++)
     {
         valarray<double> ligne_modified = matrice_et_id.getRowSlice(idx_ligne_rest);
@@ -188,7 +188,7 @@ void invertParallel(Matrix &matrice)
         matrice_et_id.getRowSlice(idx_ligne_rest) = ligne_modified;
     }
     MPI::Finalize();
-    // On copie la partie droite de la matrice AI ainsi transformée dans la matrice courante.
+    // On copie la partie droite de la matrice [ A I ] qui est devenue [I A^-1] ainsi transformée dans la matrice courante.
     for (size_t i = 0; i < matrice_et_id.rows(); ++i)
     {
         matrice.getRowSlice(i) = matrice_et_id.getDataArray()[slice(i * matrice_et_id.cols() + matrice.cols(), matrice.cols(), 1)];
