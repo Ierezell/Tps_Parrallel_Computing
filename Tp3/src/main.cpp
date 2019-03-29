@@ -245,8 +245,8 @@ int main(int argc, char **argv)
     cout << "Erreur sequentielle: " << res_Seq.getDataArray().sum() - taille_mat << endl
          << endl;
     cout << "Temps sequentiel : " << tac_seq - tic_seq << "secondes" << endl;
-    Algorithme parallele
-        Matrix mat_Inv_Par(matrice);
+    //Algorithme parallele
+    Matrix mat_Inv_Par(matrice);
     float tic_par = chron.get();
     invertParallel(mat_Inv_Par);
     float tac_par = chron.get();
