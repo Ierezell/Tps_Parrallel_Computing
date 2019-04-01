@@ -1,4 +1,5 @@
 #define __CL_ENABLE_EXCEPTIONS
+#define CL_HPP_ENABLE_EXCEPTIONS
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl.hpp>
 #else
@@ -16,19 +17,6 @@
 // #ifndef DEVICE
 // #define DEVICE CL_DEVICE_TYPE_DEFAULT
 // #endif
-const char *helloStr = "__kernel void "
-                       "hello(void) "
-                       "{ "
-                       "  "
-                       "} ";
-
-//     "__kernel void "
-//    "compute_line(__global float* line_pivot,__global float* line,__global float* coeff_ligne) "
-//    "{ "
-//    "int i = get_global_id(0);"
-//    "int j = get_global_id(1);"
-//    "line[i][j] = line[i][j] - line_pivot[j] * coeff_ligne;"
-//    "}";
 
 int main(int argc, char **argv)
 {
@@ -43,10 +31,12 @@ int main(int argc, char **argv)
 
     MatrixRandom matrice(taille_mat, taille_mat);
     MatrixConcatCols matrice_et_id(matrice, MatrixIdentity(matrice.rows()));
+    std::cout << "Matrice d'entrée : " << std::endl
+              << matrice_et_id << std::endl;
+    // Pour les erreurs possibles
     cl_int err = CL_SUCCESS;
     try
     {
-        // Pour les erreurs possibles
         ////////////////////////////////////////
         // Liste les plateformes disponibles  //
         ////////////////////////////////////////
@@ -72,12 +62,13 @@ int main(int argc, char **argv)
         }
         std::cout << "Using platform 0 " << std::endl
                   << std::endl;
+
         ////////////////////////////////////////
         //          Crée le contexte          //
         ////////////////////////////////////////
-        cl_context_properties contex_props[] =
-            {CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
+        cl_context_properties contex_props[] = {CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
         cl::Context context(CL_DEVICE_TYPE_GPU, contex_props);
+
         ////////////////////////////////////////
         //    Liste les devices disponibles   //
         ////////////////////////////////////////
@@ -110,57 +101,90 @@ int main(int argc, char **argv)
         std::string prog(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
         std::cout << "File ok " << std::endl;
 
-        ////////////////////////////////////////
-        //  Crée et build le programme        //
-        ////////////////////////////////////////
-        //cl::Program::Sources source(1, std::make_pair(helloStr, strlen(helloStr)));
+        ////////////////////////////////////////////////////////////
+        // Transforme le fichier en source et crée le programme   //
+        ////////////////////////////////////////////////////////////
         cl::Program::Sources source(1, std::make_pair(prog.c_str(), prog.length()));
+        cl::Program program = cl::Program(context, source);
 
-        cl::Program program_ = cl::Program(context, source);
-        std::cout << "Prog ok " << std::endl;
-
+        ////////////////////////////////////////////////////////
+        // Build le programme sur les devices (et get le log) //
+        ////////////////////////////////////////////////////////
         try
         {
-            cl::Error err = program_.build(devices);
-            std::cout << "Build ok " << std::endl;
+            program.build(devices);
         }
-        catch (cl::Error err)
+        // Get le log d'erreur si jamais problème dans le kernel
+        catch (cl::Error &err)
         {
-            cl::STRING_CLASS buildlog;
-            program_.getBuildInfo((const cl::Device &)devices, (cl_program_build_info)CL_PROGRAM_BUILD_LOG, &buildlog);
-            std::cout << "Build infos : " << buildlog << std::endl;
+            if (err.err() == CL_BUILD_PROGRAM_FAILURE)
+            {
+                for (cl::Device dev : devices)
+                {
+                    // Check the build status
+                    cl_build_status status = program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(dev);
+                    if (status != CL_BUILD_ERROR)
+                        continue;
+                    // Get the build log
+                    std::string name = dev.getInfo<CL_DEVICE_NAME>();
+                    std::string buildlog = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
+                    std::cerr << "Build log for " << name << ":" << std::endl
+                              << buildlog << std::endl;
+                }
+            }
+            else
+                throw err;
         }
+        //////////////////////////////////////////////////////////////
+        // Crée le noyeau associé à notre programme et notre device //
+        //////////////////////////////////////////////////////////////
+        cl::Kernel kernel(program, "hello", &err);
+
+        ////////////////////////////////////////
+        //           Crée la queue            //
+        ////////////////////////////////////////
+        cl::CommandQueue queue(context, devices[0]);
+
         ////////////////////////////////////////
         //   Crée le buffer pour le device    //
         ////////////////////////////////////////
-        Matrix *buff_mat = &matrice_et_id;
-        cl::Buffer outCL(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
-                         matrice_et_id.rows() * matrice_et_id.cols(), buff_mat, &err);
+        double *buff_mat = &matrice_et_id.getDataArray()[0];
+        cl::Buffer inputMatriceBuffer(context, CL_MEM_READ_ONLY, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
+        cl::Buffer outputMatriceBuffer(context, CL_MEM_READ_ONLY, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
+        // Pour les flemmard idem que ci dessus mais le c++ fait tout pour nous
+        // cl::Buffer outputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
+        // cl::Buffer inputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
+
+        ////////////////////////////////////////
+        //  Ecrit les buffer dans la queue    //
+        ////////////////////////////////////////
+        queue.enqueueWriteBuffer(inputMatriceBuffer, CL_TRUE, 0, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double), buff_mat);
         std::cout << "Buffer ok " << std::endl;
 
         ////////////////////////////////////////
         //    Charge le kernel et ses args    //
         ////////////////////////////////////////
-        cl::Kernel kernel(program_, "hello", &err);
-        // err = kernel.setArg(0, outCL);
-        //  kernel.setArg(0, inputBufferDevice);
-        //  kernel.setArg(1, outputBufferDevice);
-        // if (err != CL_SUCCESS)
-        // {
-        //     std::cout << "Kernel panic ! " << std::endl;
-        //     return -1;
-        // }
+        err |= kernel.setArg(0, inputMatriceBuffer);
+        err |= kernel.setArg(1, outputMatriceBuffer);
+        if (err != CL_SUCCESS)
+        {
+            std::cout << "Kernel panic ! " << std::endl;
+            return -1;
+        }
         std::cout << "Kernel ok " << std::endl;
 
         ////////////////////////////////////////
-        //           Crée la queue            //
+        // Defini la taille de notre problème //
         ////////////////////////////////////////
+        cl::NDRange problemSize(matrice_et_id.rows() * matrice_et_id.cols());
+        // queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, cl::NullRange);
+        // queue.finish();
+
         cl::Event event;
-        cl::CommandQueue queue(context, devices[0], 0, &err);
         queue.enqueueNDRangeKernel(
             kernel,
             cl::NullRange,
-            cl::NDRange(4, 4), // cl::NDRange(DATA_SIZE)
+            problemSize,
             cl::NullRange,
             NULL,
             &event);
@@ -170,83 +194,26 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         //        Build le programme          //
         ////////////////////////////////////////
-        // recuperer les donnees calculees dans la memoire du device
-        queue.enqueueReadBuffer(outputBufferDevice, CL_TRUE, 0,
-                                DATA_SIZE * sizeof(float), outputDataHost);
-        ////////////////////////////////////////
-        //        Build le programme          //
-        ////////////////////////////////////////
-        ////////////////////////////////////////
-        //        Build le programme          //
-        ////////////////////////////////////////
+        // // recuperer les donnees calculees dans la memoire du device
+        // queue.enqueueReadBuffer(outputMatriceBuffer, CL_TRUE, 0,
+        //                         matrice_et_id.rows() * matrice_et_id.cols() * sizeof(cl_double), outputMatriceBuffer);
+        double *matriceOutput = (double *)malloc(matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
+        queue.enqueueReadBuffer(outputMatriceBuffer, CL_TRUE, 0, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double), matriceOutput);
 
-        //         // Create the kernel functor
-        //         cl::make_kernel<cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, int> compute_lines(program, "compute_line");
-
-        //         d_a = cl::Buffer(context, h_a.begin(), h_a.end(), true);
-        //         d_b = cl::Buffer(context, h_b.begin(), h_b.end(), true);
-        //         d_c = cl::Buffer(context, h_c.begin(), h_c.end(), true);
-        //         d_d = cl::Buffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * LENGTH);
-
-        //         // allouer et initialiser la memoire du device
-        //         // cl::Buffer inputBufferDevice(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * DATA_SIZE, inputDataHost);
-        //         // cl::Buffer outputBufferDevice(context, CL_MEM_WRITE_ONLY,
-        //         //                               sizeof(float) * DATA_SIZE);
-        //         cl::
-        //             for (size_t idx_ligne = 0; idx_ligne < matrice_et_id.rows(); ++idx_ligne)
-        //         {
-        //             // trouver l'index p du plus grand pivot de la colonne k en valeur absolue
-        //             // (pour une meilleure stabilité numérique).
-        //             size_t idx_pivot = idx_ligne;
-        //             double lMax = fabs(matrice_et_id(idx_pivot, idx_pivot));
-        //             for (size_t idx_ligne_rest = idx_ligne; idx_ligne_rest < matrice_et_id.rows(); ++idx_ligne_rest)
-        //             {
-        //                 if (fabs(matrice_et_id(idx_ligne_rest, idx_pivot)) > lMax)
-        //                 {
-        //                     lMax = fabs(matrice_et_id(idx_ligne_rest, idx_pivot));
-        //                     idx_pivot = idx_ligne_rest;
-        //                 }
-        //             }
-        //             // vérifier que la matrice n'est pas singulière
-        //             if (matrice_et_id(idx_pivot, idx_ligne) == 0)
-        //                 throw runtime_error("Matrix not invertible");
-
-        //             // échanger la ligne courante avec celle du pivot
-        //             if (idx_pivot != idx_ligne)
-        //                 matrice_et_id.swapRows(idx_pivot, idx_ligne);
-
-        //             // Normaliser le pivot
-        //             // double val_pivot = matrice_et_id(idx_ligne, idx_ligne);
-        //             // for (size_t j = 0; j < matrice_et_id.cols(); ++j)
-        //             //     matrice_et_id(idx_ligne, j) /= val_pivot;
-        //             normalise_pivot(
-        //                 cl::EnqueueArgs(
-        //                     queue,
-        //                     cl::NDRange(size)),
-        //                 line_pivot,
-        //                 coeff_pivot,
-        //                 size);
-        //             // Faire toute les transformations linéaires sur GPU
-
-        //             compute_lines(
-        //                 cl::EnqueueArgs(
-        //                     queue,
-        //                     cl::NDRange(size)),
-        //                 line_pivot,
-        //                 line,
-        //                 coeff_ligne,
-        //                 size);
-
-        //             cl::copy(queue, d_d, h_d.begin(), h_d.end());
-
-        //             // Test the results
-        //             Matrix res_Par = multiplyMatrix(matrice, mat_inv);
-        //             // On copie la partie droite de la matrice [ A I ] qui est devenue [I A^-1] ainsi transformée dans la matrice courante.
-        //             Matrix mat_inv = MatrixIdentity(matrice.rows());
-        //             for (size_t i = 0; i < matrice_et_id.rows(); ++i)
-        //             {
-        //                 mat_inv.getRowSlice(i) = matrice_et_id.getDataArray()[slice(i * matrice_et_id.cols() + matrice.cols(), matrice.cols(), 1)];
-        //             }
+        Matrix matOut(matrice_et_id.rows(), matrice_et_id.cols());
+        for (int i = 0; i < matrice_et_id.rows(); i++)
+            for (int j = 0; j < matrice_et_id.cols(); j++)
+            {
+                int index = (i * matrice_et_id.cols()) + j;
+                matOut(i, j) = matriceOutput[index];
+            }
+        //             error: argument de type invalide pour le « * » unaire (« double » obtenu)
+        // [build]              matOut(i, j) = *matriceOutput[(int)(i * (int)matrice_et_id.rows()) + j];
+        std::cout << "Matrice d'entrée : " << std::endl
+                  << matrice_et_id << std::endl;
+        std::cout << std::endl;
+        std::cout << "Matrice de sortie : " << std::endl
+                  << matOut << std::endl;
     }
     catch (cl::Error err)
     {
@@ -258,81 +225,25 @@ int main(int argc, char **argv)
 //     // https://www.codeproject.com/Articles/92788/Introductory-Tutorial-to-OpenCL
 //     https://www.khronos.org/registry/OpenCL/specs/2.2/html/OpenCL_Cxx.html#vector-utilities-library
 
-/*
- * The following example shows a general use case for the C++
- * bindings, including support for the optional exception feature and
- * also the supplied vector and string classes, see following sections for
- * decriptions of these features.
- *
- * \code
- * #define __CL_ENABLE_EXCEPTIONS
- *
- * #if defined(__APPLE__) || defined(__MACOSX)
- * #include <OpenCL/cl.hpp>
- * #else
- * #include <CL/cl.hpp>
- * #endif
- * #include <cstdio>
- * #include <cstdlib>
- * #include <iostream>
- *
- *  const char * helloStr  = "__kernel void "
- *                           "hello(void) "
- *                           "{ "
- *                           "  "
- *                           "} ";
- *
- *  int
- *  main(void)
- *  {
- *     cl_int err = CL_SUCCESS;
- *     try {
- *
- *       std::vector<cl::Platform> platforms;
- *       cl::Platform::get(&platforms);
- *       if (platforms.size() == 0) {
- *           std::cout << "Platform size 0\n";
- *           return -1;
- *       }
- *
- *       cl_context_properties properties[] =
- *          { CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
- *       cl::Context context(CL_DEVICE_TYPE_CPU, properties);
- *
- *       std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
- *
- *       cl::Program::Sources source(1,
- *           std::make_pair(helloStr,strlen(helloStr)));
- *       cl::Program program_ = cl::Program(context, source);
- *       program_.build(devices);
- *
- *       cl::Kernel kernel(program_, "hello", &err);
- *
- *       cl::Event event;
- *       cl::CommandQueue queue(context, devices[0], 0, &err);
- *       queue.enqueueNDRangeKernel(
- *           kernel,
- *           cl::NullRange,
- *           cl::NDRange(4,4),
- *           cl::NullRange,
- *           NULL,
- *           &event);
- *
- *       event.wait();
- *     }
- *     catch (cl::Error err) {
- *        std::cerr
- *           << "ERROR: "
- *           << err.what()
- *           << "("
- *           << err.err()
- *           << ")"
- *           << std::endl;
- *     }
- *
- *    return EXIT_SUCCESS;
- *  }
- *
- * \endcode
- *
- */
+
+
+// __kernel void maxping(__global __read_only float * a, __global __write_only float *b){
+//                         int threadId=get_global_id(0);
+//                         int localThreadId=get_local_id(0);
+//                         int localSize=get_local_size(0);
+//                         __local float fastMem[256];
+//                         fastMem[localThreadId]=a[threadId];
+//                         barrier(CLK_GLOBAL_MEM_FENCE|CLK_LOCAL_MEM_FENCE);
+
+//                         for(int i=localSize/2;i>=1;i/=2)
+//                         {
+//                             if(localThreadId<i)
+//                             {
+//                                 if(fastMem[localThreadId]<fastMem[localThreadId+i])
+//                                     fastMem[localThreadId]=fastMem[localThreadId+i];
+//                             }
+//                             barrier(CLK_LOCAL_MEM_FENCE);
+//                         }
+//                         if(localThreadId==0)
+//                             b[threadId]=fastMem[localThreadId];
+// }
