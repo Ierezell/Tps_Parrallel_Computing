@@ -216,7 +216,7 @@ int main(int argc, char **argv)
                   << matOut << std::endl;
     }
     catch (cl::Error err)
-    {name
+    {
         std::cerr << "ERROR: " << err.what() << "(" << err.err() << ")" << std::endl;
     }
 }
