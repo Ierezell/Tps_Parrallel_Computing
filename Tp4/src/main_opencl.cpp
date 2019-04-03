@@ -92,14 +92,14 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         // Charge le fichier des kernels gpu  //
         ////////////////////////////////////////
-        std::ifstream file("./src/hello_kernel.cl");
+        std::ifstream file("./src/compute_line_kernel.cl");
         if (file.is_open() == false)
         {
             std::cout << "Le fichier de kernel n'est pas loadé !";
             return -1;
         }
         std::string prog(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
-        std::cout << "File ok " << std::endl;
+        std::cout << "File hello_kernel.cl ok " << std::endl;
 
         ////////////////////////////////////////////////////////////
         // Transforme le fichier en source et crée le programme   //
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
         //////////////////////////////////////////////////////////////
         // Crée le noyeau associé à notre programme et notre device //
         //////////////////////////////////////////////////////////////
-        cl::Kernel kernel(program, "hello", &err);
+        cl::Kernel kernelHello(program, "compute_line", &err);
 
         ////////////////////////////////////////
         //           Crée la queue            //
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         double *buff_mat = &matrice_et_id.getDataArray()[0];
         cl::Buffer inputMatriceBuffer(context, CL_MEM_READ_ONLY, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
-        cl::Buffer outputMatriceBuffer(context, CL_MEM_READ_ONLY, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
+        cl::Buffer outputMatriceBuffer(context, CL_MEM_READ_WRITE, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
         // Pour les flemmard idem que ci dessus mais le c++ fait tout pour nous
         // cl::Buffer outputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
         // cl::Buffer inputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
@@ -164,8 +164,8 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         //    Charge le kernel et ses args    //
         ////////////////////////////////////////
-        err |= kernel.setArg(0, inputMatriceBuffer);
-        err |= kernel.setArg(1, outputMatriceBuffer);
+        err = kernelHello.setArg(0, inputMatriceBuffer);
+        err |= kernelHello.setArg(1, outputMatriceBuffer);
         if (err != CL_SUCCESS)
         {
             std::cout << "Set args : Kernel panic ! " << std::endl;
@@ -176,13 +176,13 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         // Defini la taille de notre problème //
         ////////////////////////////////////////
-        cl::NDRange problemSize(matrice_et_id.rows() * matrice_et_id.cols());
-        // queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, cl::NullRange);
+        cl::NDRange problemSize(matrice_et_id.rows(), matrice_et_id.cols());
+        // queue.enqueueNDRangeKernel(kernelHello, cl::NullRange, global, cl::NullRange);
         // queue.finish();
 
         cl::Event event;
         queue.enqueueNDRangeKernel(
-            kernel,
+            kernelHello,
             cl::NullRange,
             problemSize,
             cl::NullRange,
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
                   << matOut << std::endl;
     }
     catch (cl::Error err)
-    {name
+    {
         std::cerr << "ERROR: " << err.what() << "(" << err.err() << ")" << std::endl;
     }
 }

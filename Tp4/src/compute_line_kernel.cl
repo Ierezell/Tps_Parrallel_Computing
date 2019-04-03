@@ -1,47 +1,37 @@
-__kernel void hello(__global double *inputMat, __global double *outputMat)
+__kernel void compute_line(__global double *inputMat, __global double *outputMat)
 {
+    int i = get_global_id(0);
+    int j = get_global_id(1);
+    int rows = get_global_size(0); // NDRange(0) == lignes
+    int cols = get_global_size(1); //NDRange(1) == colonnes
     // traiter chaque rangée
-    for (size_t k = 0; k < iA.rows(); ++k)
+    for (int idx_ligne = 0; idx_ligne < rows; ++idx_ligne)
     {
-        // trouver l'index p du plus grand pivot de la colonne k en valeur absolue
+        // trouver l'index pivot du plus grand pivot de la colonne idx_ligne en valeur absolue
         // (pour une meilleure stabilité numérique).
-        size_t p = k;
-        double lMax = fabs(lAI(k, k));
-        for (size_t i = k; i < lAI.rows(); ++i)
-        {
-            if (fabs(lAI(i, k)) > lMax)
-            {
-                lMax = fabs(lAI(i, k));
-                p = i;
-            }
+        int threadId=get_global_id(0);
+        int localThreadId=get_local_id(0);
+        int localSize=get_local_size(0);
+        int col_pivot[get_global_size(0)];
+        __local int idx_pivot;
+
+        if (get_global_id(0) == 0) {
+            __global double val_pivot = fabs(inputMat[idx_ligne*cols+idx_ligne]);  //element sur la diagonale
+            __global int idx_pivot = 0;
+            for(int i= idx_ligne; i<rows; i++)
+                if inputMat[(idx_ligne+threadId)*cols] < val_pivot{
+                    val_pivot = inputMat[(idx_ligne+threadId)*cols];
+                    idx_pivot= i ;
+                }
         }
+
+
         // vérifier que la matrice n'est pas singulière
-        if (lAI(p, k) == 0)
-            throw runtime_error("Matrix not invertible");
-
-        // échanger la ligne courante avec celle du pivot
-        if (p != k)
-            lAI.swapRows(p, k);
-
-        double lValue = lAI(k, k);
-        for (size_t j = 0; j < lAI.cols(); ++j)
-        {
-            // On divise les éléments de la rangée k
-            // par la valeur du pivot.
-            // Ainsi, lAI(k,k) deviendra égal à 1.
-            lAI(k, j) /= lValue;
-        }
-
-        // Pour chaque rangée...
-        for (size_t i = 0; i < lAI.rows(); ++i)
-        {
-            if (i != k)
-            {   // ...différente de k
-                // On soustrait la rangée k
-                // multipliée par l'élément k de la rangée courante
-                double lValue = lAI(i, k);
-                lAI.getRowSlice(i) -= lAI.getRowCopy(k) * lValue;
-            }
-        }
+        if (inputMat[idx_pivot*cols+idx_ligne] == 0)
+            return -1;
+        // PIvot
+        inputMat[idx_ligne*cols+get_local_id(0)] /=  inputMat[idx_ligne*cols+idx_ligne];
+        // AUTRES
+        inputMat[get_global_id(0)*get_global_id(1)+get_local_id(0)] -= inputMat[get_global_id(0)*get_global_id(1)+get_local_id(0)] *  inputMat[idx_ligne*cols+idx_ligne];
     }
 } ;
