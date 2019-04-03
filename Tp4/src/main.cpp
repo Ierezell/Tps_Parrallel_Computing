@@ -168,7 +168,7 @@ int main(int argc, char **argv)
         err |= kernel.setArg(1, outputMatriceBuffer);
         if (err != CL_SUCCESS)
         {
-            std::cout << "Kernel panic ! " << std::endl;
+            std::cout << "Set args : Kernel panic ! " << std::endl;
             return -1;
         }
         std::cout << "Kernel ok " << std::endl;
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
                   << matOut << std::endl;
     }
     catch (cl::Error err)
-    {
+    {name
         std::cerr << "ERROR: " << err.what() << "(" << err.err() << ")" << std::endl;
     }
 }
@@ -224,8 +224,6 @@ int main(int argc, char **argv)
 //     // https://dournac.org/info/gpu_sum_reduction
 //     // https://www.codeproject.com/Articles/92788/Introductory-Tutorial-to-OpenCL
 //     https://www.khronos.org/registry/OpenCL/specs/2.2/html/OpenCL_Cxx.html#vector-utilities-library
-
-
 
 // __kernel void maxping(__global __read_only float * a, __global __write_only float *b){
 //                         int threadId=get_global_id(0);
