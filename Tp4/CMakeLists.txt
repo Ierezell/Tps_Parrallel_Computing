@@ -38,9 +38,11 @@ target_include_directories (Tp4_Sebastien_Pierre_main_opencl PUBLIC ${CMAKE_CURR
 target_link_libraries(Tp4_Sebastien_Pierre_main_opencl ${OpenCL_LIBRARY} Matrix)
 target_compile_options(Tp4_Sebastien_Pierre_main_opencl PRIVATE -O3)
 
-# target_link_libraries(Tp4_Sebastien_Pierre_main_acc ${OpenACC_LIBRARY} Matrix)
-# target_compile_options(Tp3_Sebastien_Pierre_main PRIVATE -fopenacc)
-# target_compile_options(Tp4_Sebastien_Pierre_main_acc PRIVATE -O3)
+target_link_libraries(Tp4_Sebastien_Pierre_main_acc ${OpenACC_LIBRARY} Matrix)
+target_compile_options(Tp4_Sebastien_Pierre_main_acc PRIVATE -O3)
+
+# target_compile_options(Tp4_Sebastien_Pierre_main_acc PRIVATE ${MPI_CXX_COMPILE_FLAGS})
+# target_compile_options(Tp4_Sebastien_Pierre_main_opencl PRIVATE ${MPI_CXX_COMPILE_FLAGS})
 
 add_custom_command(TARGET Tp4_Sebastien_Pierre_main_opencl PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/bin)
 #add_custom_command(TARGET Tp1_Sebastien_Pierre_par POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/build)
