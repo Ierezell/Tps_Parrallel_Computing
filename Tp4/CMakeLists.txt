@@ -11,13 +11,14 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
 )
 
-find_package(OpenACC REQUIRED)
-include_directories(${OpenACC_INCLUDE_DIRS})
-link_directories(${OpenACC_LIBRARY})
-
 find_package(OpenCL REQUIRED)
 include_directories(${OpenCL_INCLUDE_DIRS})
 link_directories(${OpenCL_LIBRARY})
+
+
+# find_package(OpenACC REQUIRED)
+# include_directories(${OpenACC_INCLUDE_DIRS})
+# link_directories(${OpenACC_LIBRARY})
 # Change path of executables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 # Add our own library
@@ -32,10 +33,13 @@ add_executable(Tp4_Sebastien_Pierre_main_acc src/main_acc.cpp)
 
 
 target_include_directories (Tp4_Sebastien_Pierre_main_opencl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+<<<<<<< HEAD
 target_include_directories (Tp4_Sebastien_Pierre_main_acc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+=======
+# target_include_directories (Tp4_Sebastien_Pierre_main_acc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+>>>>>>> 479e8d7ce7b4b4aba467e537677e3e24e246371c
 # Libraries to link for the main program
-# target_link_libraries(test_tgt OpenCL::OpenCL)
 target_link_libraries(Tp4_Sebastien_Pierre_main_opencl ${OpenCL_LIBRARY} Matrix)
 target_compile_options(Tp4_Sebastien_Pierre_main_opencl PRIVATE -O3)
 
