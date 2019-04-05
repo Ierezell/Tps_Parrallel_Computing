@@ -33,12 +33,8 @@ add_executable(Tp4_Sebastien_Pierre_main_acc src/main_acc.cpp)
 
 
 target_include_directories (Tp4_Sebastien_Pierre_main_opencl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-<<<<<<< HEAD
 target_include_directories (Tp4_Sebastien_Pierre_main_acc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-=======
-# target_include_directories (Tp4_Sebastien_Pierre_main_acc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
->>>>>>> 479e8d7ce7b4b4aba467e537677e3e24e246371c
 # Libraries to link for the main program
 target_link_libraries(Tp4_Sebastien_Pierre_main_opencl ${OpenCL_LIBRARY} Matrix)
 target_compile_options(Tp4_Sebastien_Pierre_main_opencl PRIVATE -O3)
