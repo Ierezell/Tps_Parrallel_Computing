@@ -1,37 +1,45 @@
-__kernel void compute_line(__global double *inputMat, __global double *outputMat)
+__kernel void compute_line(__global int mat_size, __global double *inputMat, __global double *outputMat)
 {
-    int i = get_global_id(0);
-    int j = get_global_id(1);
-    int rows = get_global_size(0); // NDRange(0) == lignes
-    int cols = get_global_size(1); //NDRange(1) == colonnes
+    int rows_size = get_global_size(0); // NDRange(0) == lignes
+    int cols_size = get_global_size(1); //NDRange(1) == colonnes
+    int idx_row = get_global_id(0); // Indice du groupe qui soccupe de la ligne
+    int idx_col = get_global_id(1); // Indice du groupe qui soccupe de la colonne
+    int lidx_ligne = get_local_id(0);
+    int lidx_cols = get_local_id(1);
+    printf("COUCOU %d : %d\n",idx_row, idx_col);
     // traiter chaque rangée
-    for (int idx_ligne = 0; idx_ligne < rows; ++idx_ligne)
+    __local double ma_ligne[10];
+    __local int idx_pivot;
+    __local double val_pivot;
+    // for (int col_idx = 0; col_idx < cols_size; ++col_idx)
+    //     ma_ligne[(idx_row*cols_size)+col_idx] = inputMat[(idx_row*cols_size)+col_idx] ;
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    for (int idx_ligne = 0; idx_ligne < rows_size; ++idx_ligne)
     {
+        // printf("LIGNE %d\n", idx_ligne);
         // trouver l'index pivot du plus grand pivot de la colonne idx_ligne en valeur absolue
         // (pour une meilleure stabilité numérique).
-        int threadId=get_global_id(0);
-        int localThreadId=get_local_id(0);
-        int localSize=get_local_size(0);
-        int col_pivot[get_global_size(0)];
-        __local int idx_pivot;
 
-        if (get_global_id(0) == 0) {
-            __global double val_pivot = fabs(inputMat[idx_ligne*cols+idx_ligne]);  //element sur la diagonale
-            __global int idx_pivot = 0;
-            for(int i= idx_ligne; i<rows; i++)
-                if inputMat[(idx_ligne+threadId)*cols] < val_pivot{
-                    val_pivot = inputMat[(idx_ligne+threadId)*cols];
-                    idx_pivot= i ;
-                }
-        }
+        val_pivot = -1000000;
+        idx_pivot = 0;
+        for(int i=idx_ligne; i<rows_size; i++)
+            if (outputMat[(idx_ligne+i)*cols_size] > val_pivot) {
+                val_pivot = outputMat[(idx_ligne+i)*cols_size];
+                idx_pivot = i ;
+            }
+        barrier(CLK_LOCAL_MEM_FENCE);
+        printf("%d : %d\n",idx_row,val_pivot);
+        printf("%d : %d\n",idx_row,idx_pivot);
+        // Pivot
+        if (get_global_id(0) == idx_pivot)
+            outputMat[(idx_row*cols_size)+idx_col] /= val_pivot;
+        barrier(CLK_LOCAL_MEM_FENCE);
 
-
-        // vérifier que la matrice n'est pas singulière
-        if (inputMat[idx_pivot*cols+idx_ligne] == 0)
-            return -1;
-        // PIvot
-        inputMat[idx_ligne*cols+get_local_id(0)] /=  inputMat[idx_ligne*cols+idx_ligne];
         // AUTRES
-        inputMat[get_global_id(0)*get_global_id(1)+get_local_id(0)] -= inputMat[get_global_id(0)*get_global_id(1)+get_local_id(0)] *  inputMat[idx_ligne*cols+idx_ligne];
+        // Coefficient i, j              -=
+        outputMat[(idx_row*cols_size)+idx_col] -= outputMat[(idx_row*cols_size)+idx_ligne] * inputMat[(idx_pivot*cols_size)+idx_col];
+        barrier(CLK_LOCAL_MEM_FENCE);
+
     }
 } ;

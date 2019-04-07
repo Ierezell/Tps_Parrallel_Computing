@@ -138,7 +138,7 @@ int main(int argc, char **argv)
         //////////////////////////////////////////////////////////////
         // Crée le noyeau associé à notre programme et notre device //
         //////////////////////////////////////////////////////////////
-        cl::Kernel kernelHello(program, "compute_line", &err);
+        cl::Kernel kernelProg(program, "compute_line", &err);
 
         ////////////////////////////////////////
         //           Crée la queue            //
@@ -151,9 +151,10 @@ int main(int argc, char **argv)
         double *buff_mat = &matrice_et_id.getDataArray()[0];
         cl::Buffer inputMatriceBuffer(context, CL_MEM_READ_ONLY, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
         cl::Buffer outputMatriceBuffer(context, CL_MEM_READ_WRITE, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
+        cl::Buffer sizeMatriceBuffer(context, CL_MEM_READ_WRITE, sizeof(int));
         // Pour les flemmard idem que ci dessus mais le c++ fait tout pour nous
-        // cl::Buffer outputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
-        // cl::Buffer inputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
+        cl::Buffer outputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
+        cl::Buffer inputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
 
         ////////////////////////////////////////
         //  Ecrit les buffer dans la queue    //
@@ -164,8 +165,9 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         //    Charge le kernel et ses args    //
         ////////////////////////////////////////
-        err = kernelHello.setArg(0, inputMatriceBuffer);
-        err |= kernelHello.setArg(1, outputMatriceBuffer);
+        err = kernelProg.setArg(0, sizeMatriceBuffer);
+        err |= kernelProg.setArg(1, inputMatriceBuffer);
+        err |= kernelProg.setArg(2, outputMatriceBuffer);
         if (err != CL_SUCCESS)
         {
             std::cout << "Set args : Kernel panic ! " << std::endl;
@@ -244,4 +246,39 @@ int main(int argc, char **argv)
 //                         }
 //                         if(localThreadId==0)
 //                             b[threadId]=fastMem[localThreadId];
+// }
+
+// void floatMatrixMultLocals(__global float *MR, __global float *M1, __global float *M2, __global int *q)
+// {
+//     //Identification of this workgroup
+//     int i = get_group_id(0);
+//     int j = get_group_id(1);
+//     //Identification of work-item
+//     int idX = get_local_id(0);
+//     int idY = get_local_id(1);
+//     //matrixes dimensions
+//     int p = get_global_size(0);
+//     int r = get_global_size(1);
+//     int Q = *q;
+//     //Number of submatrixes to be processed by each worker (Q dimension)
+//     int numSubMat = Q / BLOCK_SIZE;
+//     float4 resp = (float4)(0, 0, 0, 0);
+//     __local float A[BLOCK_SIZE][BLOCK_SIZE];
+//     __local float B[BLOCK_SIZE][BLOCK_SIZE];
+//     for (int k = 0; k < numSubMat; k++)
+//     {
+//         //Copy submatrixes to local memory. Each worker copies one element
+//         //Notice that A[i,k] accesses elements starting from M[BLOCK_SIZE*i, BLOCK_SIZE*j]
+//         A[idX][idY] = M1[BLOCK_SIZE * i + idX + p * (BLOCK_SIZE * k + idY)];
+//         B[idX][idY] = M2[BLOCK_SIZE * k + idX + Q * (BLOCK_SIZE * j + idY)];
+//         barrier(CLK_LOCAL_MEM_FENCE);
+//         for (int k2 = 0; k2 < BLOCK_SIZE; k2 += 4)
+//         {
+//             float4 temp1 = (float4)(A[idX][k2], A[idX][k2 + 1], A[idX][k2 + 2], A[idX][k2 + 3]);
+//             float4 temp2 = (float4)(B[k2][idY], B[k2 + 1][idY], B[k2 + 2][idY], B[k2 + 3][idY]);
+//             resp += temp1 * temp2;
+//         }
+//         barrier(CLK_LOCAL_MEM_FENCE);
+//     }
+//     MR[BLOCK_SIZE * i + idX + p * (BLOCK_SIZE * j + idY)] = resp.x + resp.y + resp.z + resp.w;
 // }
