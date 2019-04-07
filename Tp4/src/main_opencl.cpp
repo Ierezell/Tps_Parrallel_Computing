@@ -30,6 +30,32 @@ int main(int argc, char **argv)
     }
 
     MatrixRandom matrice(taille_mat, taille_mat);
+
+    matrice(0, 0) = 3;
+    matrice(0, 1) = 7;
+    matrice(0, 2) = 4;
+    matrice(0, 3) = 8;
+    matrice(0, 4) = 11;
+    matrice(1, 0) = 5;
+    matrice(1, 1) = 6;
+    matrice(1, 2) = 9;
+    matrice(1, 3) = 10;
+    matrice(1, 4) = 12;
+    matrice(2, 0) = 13;
+    matrice(2, 1) = 14;
+    matrice(2, 2) = 15;
+    matrice(2, 3) = 2;
+    matrice(2, 4) = 16;
+    matrice(3, 0) = 17;
+    matrice(3, 1) = 18;
+    matrice(3, 2) = 19;
+    matrice(3, 3) = 20;
+    matrice(3, 4) = 21;
+    matrice(4, 0) = 22;
+    matrice(4, 1) = 23;
+    matrice(4, 2) = 24;
+    matrice(4, 3) = 25;
+    matrice(4, 4) = 26;
     MatrixConcatCols matrice_et_id(matrice, MatrixIdentity(matrice.rows()));
     std::cout << "Matrice d'entrée : " << std::endl
               << matrice_et_id << std::endl;
@@ -92,7 +118,7 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         // Charge le fichier des kernels gpu  //
         ////////////////////////////////////////
-        std::ifstream file("./src/hello_kernel.cl");
+        std::ifstream file("./src/compute_line_kernel.cl");
         if (file.is_open() == false)
         {
             std::cout << "Le fichier de kernel n'est pas loadé !";
@@ -149,23 +175,26 @@ int main(int argc, char **argv)
         //   Crée le buffer pour le device    //
         ////////////////////////////////////////
         double *buff_mat = &matrice_et_id.getDataArray()[0];
+        int taille_cols = matrice_et_id.cols();
+        int *buff_nb_cols = &taille_cols;
         cl::Buffer inputMatriceBuffer(context, CL_MEM_READ_ONLY, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
         cl::Buffer outputMatriceBuffer(context, CL_MEM_READ_WRITE, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
-        cl::Buffer sizeMatriceBuffer(context, CL_MEM_READ_WRITE, sizeof(int));
+        cl::Buffer nb_cols_buffer(context, CL_MEM_READ_WRITE, sizeof(int));
         // Pour les flemmard idem que ci dessus mais le c++ fait tout pour nous
-        cl::Buffer outputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
-        cl::Buffer inputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
+        // cl::Buffer outputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
+        // cl::Buffer inputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
 
         ////////////////////////////////////////
         //  Ecrit les buffer dans la queue    //
         ////////////////////////////////////////
         queue.enqueueWriteBuffer(inputMatriceBuffer, CL_TRUE, 0, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double), buff_mat);
+        queue.enqueueWriteBuffer(nb_cols_buffer, CL_TRUE, 0, sizeof(int), buff_nb_cols);
         std::cout << "Buffer ok " << std::endl;
 
         ////////////////////////////////////////
         //    Charge le kernel et ses args    //
         ////////////////////////////////////////
-        err = kernelProg.setArg(0, sizeMatriceBuffer);
+        err = kernelProg.setArg(0, nb_cols_buffer);
         err |= kernelProg.setArg(1, inputMatriceBuffer);
         err |= kernelProg.setArg(2, outputMatriceBuffer);
         if (err != CL_SUCCESS)
@@ -178,20 +207,20 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         // Defini la taille de notre problème //
         ////////////////////////////////////////
-        cl::NDRange problemSize(matrice_et_id.rows() * matrice_et_id.cols());
+        cl::NDRange problemSize(matrice_et_id.rows());
         // queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, cl::NullRange);
         // queue.finish();
 
         cl::Event event;
         queue.enqueueNDRangeKernel(
-            kernel,
+            kernelProg,
             cl::NullRange,
             problemSize,
             cl::NullRange,
             NULL,
             &event);
         event.wait();
-        std::cout << "Queue ok " << std::endl;
+        std::cout << "Fini GPU " << std::endl;
 
         ////////////////////////////////////////
         //        Build le programme          //
@@ -204,13 +233,23 @@ int main(int argc, char **argv)
 
         Matrix matOut(matrice_et_id.rows(), matrice_et_id.cols());
         for (int i = 0; i < matrice_et_id.rows(); i++)
+        {
             for (int j = 0; j < matrice_et_id.cols(); j++)
             {
                 int index = (i * matrice_et_id.cols()) + j;
                 matOut(i, j) = matriceOutput[index];
             }
-        //             error: argument de type invalide pour le « * » unaire (« double » obtenu)
-        // [build]              matOut(i, j) = *matriceOutput[(int)(i * (int)matrice_et_id.rows()) + j];
+        }
+
+        // for (int idx_lignes = 0; idx_lignes < matOut.rows(); idx_lignes++)
+        // {
+        //     for (int idx_lignes_rest = idx_lignes; idx_lignes_rest < matOut.rows(); idx_lignes_rest++)
+        //     {
+        //         if (matOut(idx_lignes_rest, idx_lignes) > 0)
+        //             matOut = matOut.swapRows(idx_lignes_rest, idx_lignes);
+        //     }
+        // }
+
         std::cout << "Matrice d'entrée : " << std::endl
                   << matrice_et_id << std::endl;
         std::cout << std::endl;
