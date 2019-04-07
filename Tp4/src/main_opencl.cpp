@@ -92,14 +92,14 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         // Charge le fichier des kernels gpu  //
         ////////////////////////////////////////
-        std::ifstream file("./src/compute_line_kernel.cl");
+        std::ifstream file("./src/hello_kernel.cl");
         if (file.is_open() == false)
         {
             std::cout << "Le fichier de kernel n'est pas loadé !";
             return -1;
         }
         std::string prog(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
-        std::cout << "File hello_kernel.cl ok " << std::endl;
+        std::cout << "File ok " << std::endl;
 
         ////////////////////////////////////////////////////////////
         // Transforme le fichier en source et crée le programme   //
@@ -178,13 +178,13 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         // Defini la taille de notre problème //
         ////////////////////////////////////////
-        cl::NDRange problemSize(matrice_et_id.rows(), matrice_et_id.cols());
-        // queue.enqueueNDRangeKernel(kernelHello, cl::NullRange, global, cl::NullRange);
+        cl::NDRange problemSize(matrice_et_id.rows() * matrice_et_id.cols());
+        // queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, cl::NullRange);
         // queue.finish();
 
         cl::Event event;
         queue.enqueueNDRangeKernel(
-            kernelHello,
+            kernel,
             cl::NullRange,
             problemSize,
             cl::NullRange,
