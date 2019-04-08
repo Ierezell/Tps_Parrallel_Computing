@@ -32,19 +32,19 @@ int main(int argc, char **argv)
     MatrixRandom matrice(taille_mat, taille_mat);
 
     matrice(0, 0) = 3;
-    matrice(0, 1) = 7;
+    matrice(0, 1) = 2;
     matrice(0, 2) = 4;
-    matrice(0, 3) = 8;
-    matrice(0, 4) = 11;
-    matrice(1, 0) = 5;
-    matrice(1, 1) = 6;
-    matrice(1, 2) = 9;
-    matrice(1, 3) = 10;
-    matrice(1, 4) = 12;
-    matrice(2, 0) = 13;
-    matrice(2, 1) = 14;
-    matrice(2, 2) = 15;
-    matrice(2, 3) = 2;
+    matrice(0, 3) = 12;
+    matrice(0, 4) = 5;
+    matrice(1, 0) = 6;
+    matrice(1, 1) = 8;
+    matrice(1, 2) = 7;
+    matrice(1, 3) = 9;
+    matrice(1, 4) = 11;
+    matrice(2, 0) = 10;
+    matrice(2, 1) = 13;
+    matrice(2, 2) = 14;
+    matrice(2, 3) = 15;
     matrice(2, 4) = 16;
     matrice(3, 0) = 17;
     matrice(3, 1) = 18;
@@ -255,6 +255,20 @@ int main(int argc, char **argv)
         std::cout << std::endl;
         std::cout << "Matrice de sortie : " << std::endl
                   << matOut << std::endl;
+
+        // ////////////////////////////////////////
+        // //       Clean les allocations  pas possible en c++      //
+        // ////////////////////////////////////////
+        // clReleaseKernel(kernelProg);
+        // clReleaseProgram(program);
+        // clReleaseCommandQueue(queue);
+        // clReleaseMemObject();
+        // clReleaseMemObject();
+        // clReleaseMemObject();
+        // clReleaseContext(context);
+        // clReleaseEvent(event);
+        // free(platforms);
+        // free(devices);
     }
     catch (cl::Error err)
     {
