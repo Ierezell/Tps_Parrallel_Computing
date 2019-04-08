@@ -180,6 +180,8 @@ int main(int argc, char **argv)
         cl::Buffer inputMatriceBuffer(context, CL_MEM_READ_ONLY, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
         cl::Buffer outputMatriceBuffer(context, CL_MEM_READ_WRITE, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
         cl::Buffer nb_cols_buffer(context, CL_MEM_READ_WRITE, sizeof(int));
+        cl::Buffer fact_elims(context, CL_MEM_READ_WRITE, taille_cols * sizeof(double));
+
         // Pour les flemmard idem que ci dessus mais le c++ fait tout pour nous
         // cl::Buffer outputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
         // cl::Buffer inputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
@@ -195,8 +197,9 @@ int main(int argc, char **argv)
         //    Charge le kernel et ses args    //
         ////////////////////////////////////////
         err = kernelProg.setArg(0, nb_cols_buffer);
-        err |= kernelProg.setArg(1, inputMatriceBuffer);
-        err |= kernelProg.setArg(2, outputMatriceBuffer);
+        err |= kernelProg.setArg(1, fact_elims);
+        err |= kernelProg.setArg(2, inputMatriceBuffer);
+        err |= kernelProg.setArg(3, outputMatriceBuffer);
         if (err != CL_SUCCESS)
         {
             std::cout << "Set args : Kernel panic ! " << std::endl;
@@ -207,7 +210,30 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         // Defini la taille de notre problème //
         ////////////////////////////////////////
-        cl::NDRange problemSize(matrice_et_id.rows());
+        cl_uint MAX_COMPUTE_UNITS;
+        devices[0].getInfo((cl_device_info)CL_DEVICE_MAX_COMPUTE_UNITS, &MAX_COMPUTE_UNITS);
+        // std::cout << "1111111  " << MAX_COMPUTE_UNITS << std::endl;
+
+        cl_uint MAX_WORK_ITEM_DIMENSIONS;
+        devices[0].getInfo((cl_device_info)CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, &MAX_WORK_ITEM_DIMENSIONS);
+        // std::cout << "2222222  " << MAX_WORK_ITEM_DIMENSIONS << std::endl;
+
+        size_t MAX_WORK_GROUP_SIZE;
+        devices[0].getInfo((cl_device_info)CL_DEVICE_MAX_WORK_GROUP_SIZE, &MAX_WORK_GROUP_SIZE);
+        // std::cout << "3333333  " << MAX_WORK_GROUP_SIZE << std::endl;
+
+        size_t MAX_WORK_ITEM_SIZES[100];
+        devices[0].getInfo((cl_device_info)CL_DEVICE_MAX_WORK_ITEM_SIZES, &MAX_WORK_ITEM_SIZES);
+        // std::cout << "4444444  ";
+        // for (auto i : MAX_WORK_ITEM_SIZES)
+        //     std::cout << i << "    ";
+        // std::cout << std::endl;
+
+        // cl::NDRange globalProblemSize(MAX_COMPUTE_UNITS * MAX_WORK_GROUP_SIZE, 1);
+        // cl::NDRange localProblemSize(MAX_WORK_GROUP_SIZE, 1);
+        cl::NDRange globalProblemSize(16);
+        cl::NDRange localProblemSize(8);
+
         // queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, cl::NullRange);
         // queue.finish();
 
@@ -215,8 +241,8 @@ int main(int argc, char **argv)
         queue.enqueueNDRangeKernel(
             kernelProg,
             cl::NullRange,
-            problemSize,
-            cl::NullRange,
+            globalProblemSize,
+            localProblemSize,
             NULL,
             &event);
         event.wait();
