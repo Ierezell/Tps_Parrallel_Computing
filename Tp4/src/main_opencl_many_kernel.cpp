@@ -245,12 +245,12 @@ int main(int argc, char **argv)
         // std::cout << std::endl;
         int globalSize = MAX_COMPUTE_UNITS * MAX_WORK_GROUP_SIZE;
         int localSize = MAX_WORK_GROUP_SIZE;
-        cl::NDRange globalProblemSize(MAX_COMPUTE_UNITS * MAX_WORK_GROUP_SIZE, 1);
-        cl::NDRange localProblemSize(MAX_WORK_GROUP_SIZE, 1);
+        // int globalSize = MAX_COMPUTE_UNITS * 32;
+        // int localSize = 32;
+        cl::NDRange globalProblemSize(globalSize, 1);
+        cl::NDRange localProblemSize(localSize, 1);
         printf("globalSize = %d\n", globalSize);
         printf("localSize = %d\n", localSize);
-        // cl::NDRange globalProblemSize(16);
-        // cl::NDRange localProblemSize(8);
 
         // queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, cl::NullRange);
         // queue.finish();

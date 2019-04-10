@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#define N 104850
+#define N 20000
 
 
 // Inverser la matrice par la méthode de Gauss-Jordan; implantation séquentielle.
@@ -42,7 +42,7 @@ void invertMatrix(Matrix &iA)
             lAI.swapRows(p, k);
 
         double lValue = lAI(k, k);
-        #pragma acc data copyout(lAI)
+        #pragma acc data //copyout(lAI, lValue)
         {
         #pragma acc parallel loop        
         for (size_t j = 0; j < lAI.cols(); ++j)
@@ -96,27 +96,31 @@ Matrix multiplyMatrix(const Matrix &iMat1, const Matrix &iMat2)
     return lRes;
 }
 
+void dummy_function(){
+    double a[N];
+    double b[N];
+    int i, j;
+
+    #pragma acc parallel
+    {
+        #pragma acc loop independent
+        for(i=0;i<N;i++){
+            a[i] = i+1;
+            b[i] = 2*i+0.1;
+        }
+
+        #pragma acc loop independent
+        for(i=0;i<N;i++){
+            for(j=0;j<N;j++){
+                a[i] += 2*a[i]/b[j]+3;
+            }
+        }
+    }
+}
+
 
 int main(int argc, char **argv)
 {
-    // double a[N];
-    // double b[N];
-    // int i;
-
-    // #pragma acc data copyout(a)
-    // {
-    //     #pragma acc parallel loop
-    //     for(i=0;i<N;i++){
-    //         a[i] = i+1;
-    //         b[i] = 2*i+0.1;
-    //     }
-
-    //     #pragma acc parallel loop
-    //     for(i=0;i<N;i++){
-    //         a[i] = 2*a[i]/b[i]+3;
-    //     }
-    // }
-
     srand((unsigned)time(NULL));
 
     unsigned int taille_mat = 5;
@@ -127,10 +131,10 @@ int main(int argc, char **argv)
 
     MatrixRandom matrice(taille_mat, taille_mat);
     Chrono chron = Chrono();
-    // Algorithme sequentiel
     Matrix mat_Inv(matrice);
     float tic = chron.get();
-    invertMatrix(mat_Inv);
+    //invertMatrix(mat_Inv);
+    dummy_function();
     float tac = chron.get();
     // cout << "Matrice inverse sequentielle:\n"
     //      << mat_Inv.str() << endl
@@ -138,9 +142,9 @@ int main(int argc, char **argv)
 
     cout << "Temps sequentiel : " << tac - tic << "secondes" << endl;
 
-    Matrix res = multiplyMatrix(matrice, mat_Inv);
-    cout << "Erreur sequentielle: " << res.getDataArray().sum() - taille_mat << endl
-         << endl;
+    // Matrix res = multiplyMatrix(matrice, mat_Inv);
+    // cout << "Erreur sequentielle: " << res.getDataArray().sum() - taille_mat << endl
+    //      << endl;
     
 
     // cout << "Produit des deux matrices:\n"
@@ -149,3 +153,5 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
+
