@@ -254,7 +254,7 @@ int main(int argc, char **argv)
         // // recuperer les donnees calculees dans la memoire du device
         // queue.enqueueReadBuffer(outputMatriceBuffer, CL_TRUE, 0,
         //                         matrice_et_id.rows() * matrice_et_id.cols() * sizeof(cl_double), outputMatriceBuffer);
-        double *matriceOutput = (double *)malloc(matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
+        double *matriceOutput = (double *)calloc(matrice_et_id.rows() * matrice_et_id.cols() , sizeof(double));
         queue.enqueueReadBuffer(outputMatriceBuffer, CL_TRUE, 0, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double), matriceOutput);
 
         Matrix matOut(matrice_et_id.rows(), matrice_et_id.cols());
