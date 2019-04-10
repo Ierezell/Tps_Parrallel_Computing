@@ -6,7 +6,7 @@ __kernel void compute_line(__global int* nb_cols,__global int* idx_line,__global
     int idx_worker_line;
     int idx_ligne = *idx_line;
     double val_pivot;
-    printf("BWAAA\n");
+    //printf("BWAAA\n");
     idx_worker_line = idx_worker+(idx_ligne*nombre_cols);
     // while(idx_worker_line%nombre_cols==1) {
     //     // printf("%lf  ", outputMat[idx_worker_line]);
