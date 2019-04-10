@@ -28,7 +28,8 @@ add_library(Matrix
             )
 
 # Main programs to be compiled
-add_executable(Tp4_Sebastien_Pierre_main_opencl src/main_opencl.cpp)
+# add_executable(Tp4_Sebastien_Pierre_main_opencl src/main_opencl.cpp)
+add_executable(Tp4_Sebastien_Pierre_main_opencl src/main_opencl_many_kernel.cpp)
 # add_executable(Tp4_Sebastien_Pierre_main_acc src/main_acc.cpp)
 
 

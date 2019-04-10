@@ -118,27 +118,32 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         // Charge le fichier des kernels gpu  //
         ////////////////////////////////////////
-        std::ifstream file("./src/compute_line_kernel.cl");
-        if (file.is_open() == false)
+        std::ifstream fileLine("./src/compute_line.cl");
+        std::ifstream fileNorm("./src/compute_norm.cl");
+        if ((fileLine.is_open() == false) || (fileNorm.is_open() == false))
         {
-            std::cout << "Le fichier de kernel n'est pas loadé !";
+            std::cout << "Les fichiers de kernels ne sont pas loadé !";
             return -1;
         }
-        std::string prog(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
+        std::string progLine(std::istreambuf_iterator<char>(fileLine), (std::istreambuf_iterator<char>()));
+        std::string progNorm(std::istreambuf_iterator<char>(fileNorm), (std::istreambuf_iterator<char>()));
         std::cout << "File ok " << std::endl;
 
         ////////////////////////////////////////////////////////////
         // Transforme le fichier en source et crée le programme   //
         ////////////////////////////////////////////////////////////
-        cl::Program::Sources source(1, std::make_pair(prog.c_str(), prog.length()));
-        cl::Program program = cl::Program(context, source);
+        cl::Program::Sources sourceLine(1, std::make_pair(progLine.c_str(), progLine.length()));
+        cl::Program::Sources sourceNorm(1, std::make_pair(progNorm.c_str(), progNorm.length()));
+        cl::Program programLine = cl::Program(context, sourceLine);
+        cl::Program programNorm = cl::Program(context, sourceNorm);
 
         ////////////////////////////////////////////////////////
         // Build le programme sur les devices (et get le log) //
         ////////////////////////////////////////////////////////
         try
         {
-            program.build(devices);
+            programLine.build(devices);
+            programNorm.build(devices);
         }
         // Get le log d'erreur si jamais problème dans le kernel
         catch (cl::Error &err)
@@ -148,23 +153,28 @@ int main(int argc, char **argv)
                 for (cl::Device dev : devices)
                 {
                     // Check the build status
-                    cl_build_status status = program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(dev);
+                    cl_build_status status = programLine.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(dev);
                     if (status != CL_BUILD_ERROR)
                         continue;
                     // Get the build log
                     std::string name = dev.getInfo<CL_DEVICE_NAME>();
-                    std::string buildlog = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
+                    std::string buildlogLine = programLine.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
+                    std::string buildlogNorm = programNorm.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
                     std::cerr << "Build log for " << name << ":" << std::endl
-                              << buildlog << std::endl;
+                              << buildlogLine << std::endl;
+                    std::cerr << "Build log for " << name << ":" << std::endl
+                              << buildlogNorm << std::endl;
                 }
             }
             else
                 throw err;
         }
+        std::cout << "Prog ok" << std::endl;
         //////////////////////////////////////////////////////////////
         // Crée le noyeau associé à notre programme et notre device //
         //////////////////////////////////////////////////////////////
-        cl::Kernel kernelProg(program, "compute_line", &err);
+        cl::Kernel kernelProgLine(programLine, "compute_line", &err);
+        cl::Kernel kernelProgNorm(programNorm, "compute_norm", &err);
 
         ////////////////////////////////////////
         //           Crée la queue            //
@@ -177,10 +187,13 @@ int main(int argc, char **argv)
         double *buff_mat = &matrice_et_id.getDataArray()[0];
         int taille_cols = matrice_et_id.cols();
         int *buff_nb_cols = &taille_cols;
-        cl::Buffer inputMatriceBuffer(context, CL_MEM_READ_ONLY, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
+        int idx_line = 0;
+        int *idx_line_buffer = &idx_line;
+
         cl::Buffer outputMatriceBuffer(context, CL_MEM_READ_WRITE, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
         cl::Buffer nb_cols_buffer(context, CL_MEM_READ_WRITE, sizeof(int));
-        cl::Buffer fact_elims(context, CL_MEM_READ_WRITE, taille_cols * sizeof(double));
+        cl::Buffer fact_elims_buffer(context, CL_MEM_READ_WRITE, taille_cols * sizeof(double));
+        cl::Buffer idx_ligne_bufer(context, CL_MEM_READ_WRITE, sizeof(int));
 
         // Pour les flemmard idem que ci dessus mais le c++ fait tout pour nous
         // cl::Buffer outputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
@@ -189,17 +202,22 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         //  Ecrit les buffer dans la queue    //
         ////////////////////////////////////////
-        queue.enqueueWriteBuffer(inputMatriceBuffer, CL_TRUE, 0, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double), buff_mat);
+        queue.enqueueWriteBuffer(outputMatriceBuffer, CL_TRUE, 0, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double), buff_mat);
         queue.enqueueWriteBuffer(nb_cols_buffer, CL_TRUE, 0, sizeof(int), buff_nb_cols);
+        queue.enqueueWriteBuffer(idx_ligne_bufer, CL_TRUE, 0, sizeof(int), idx_line_buffer);
         std::cout << "Buffer ok " << std::endl;
 
         ////////////////////////////////////////
         //    Charge le kernel et ses args    //
         ////////////////////////////////////////
-        err = kernelProg.setArg(0, nb_cols_buffer);
-        err |= kernelProg.setArg(1, fact_elims);
-        err |= kernelProg.setArg(2, inputMatriceBuffer);
-        err |= kernelProg.setArg(3, outputMatriceBuffer);
+        err = kernelProgNorm.setArg(0, nb_cols_buffer);
+        err = kernelProgNorm.setArg(1, idx_ligne_bufer);
+        err |= kernelProgNorm.setArg(2, outputMatriceBuffer);
+
+        err = kernelProgLine.setArg(0, nb_cols_buffer);
+        err = kernelProgLine.setArg(1, idx_ligne_bufer);
+        err |= kernelProgLine.setArg(2, fact_elims_buffer);
+        err |= kernelProgLine.setArg(3, outputMatriceBuffer);
         if (err != CL_SUCCESS)
         {
             std::cout << "Set args : Kernel panic ! " << std::endl;
@@ -236,16 +254,29 @@ int main(int argc, char **argv)
 
         // queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, cl::NullRange);
         // queue.finish();
-
         cl::Event event;
-        queue.enqueueNDRangeKernel(
-            kernelProg,
-            cl::NullRange,
-            globalProblemSize,
-            localProblemSize,
-            NULL,
-            &event);
-        event.wait();
+        for (int i = 0; i < matrice_et_id.cols(); i++)
+        {
+            queue.enqueueNDRangeKernel(
+                kernelProgNorm,
+                cl::NullRange,
+                globalProblemSize,
+                localProblemSize,
+                NULL,
+                &event);
+            //event.wait();
+            queue.finish();
+            queue.enqueueNDRangeKernel(
+                kernelProgLine,
+                cl::NullRange,
+                globalProblemSize,
+                localProblemSize,
+                NULL,
+                &event);
+            //event.wait();
+            queue.finish();
+        }
+
         std::cout << "Fini GPU " << std::endl;
 
         ////////////////////////////////////////
