@@ -20,7 +20,7 @@ __kernel void compute_line(__global int* nb_cols,__global double* fact_elims,__g
     }
     barrier(CLK_LOCAL_MEM_FENCE);
     barrier(CLK_GLOBAL_MEM_FENCE);
-    for (idx_ligne = 0; idx_ligne < 1; ++idx_ligne)
+    for (idx_ligne = 0; idx_ligne < 5; ++idx_ligne)
     //for (int idx_ligne = 0; idx_ligne < 1; ++idx_ligne)
     {
         barrier(CLK_LOCAL_MEM_FENCE);
@@ -62,9 +62,16 @@ __kernel void compute_line(__global int* nb_cols,__global double* fact_elims,__g
         while(idx_worker_line<nombre_cols*(nombre_cols/2))
         {
             printf("%d :: :: :: %lf\n",idx_worker_line,outputMat[idx_worker_line] );
+            barrier(CLK_LOCAL_MEM_FENCE);
+                barrier(CLK_GLOBAL_MEM_FENCE);  
             if(idx_worker_line%nombre_cols == idx_ligne)
             {
+                printf("Je suis %d, et je stocke %lf\n", idx_worker_line, outputMat[idx_worker_line] );
+                barrier(CLK_LOCAL_MEM_FENCE);
+                barrier(CLK_GLOBAL_MEM_FENCE);  
                 fact_elims[(int)(idx_worker_line/nombre_cols)] = outputMat[idx_worker_line];
+                barrier(CLK_LOCAL_MEM_FENCE);
+                barrier(CLK_GLOBAL_MEM_FENCE);  
                 // printf("fact_elim = %lf\n",fact_elims[(int)(idx_worker_line/nombre_cols)]);
             }
             barrier(CLK_LOCAL_MEM_FENCE);
@@ -73,6 +80,10 @@ __kernel void compute_line(__global int* nb_cols,__global double* fact_elims,__g
             barrier(CLK_LOCAL_MEM_FENCE);
             barrier(CLK_GLOBAL_MEM_FENCE);
         }
+        printf("GOUOUUU\n");
+        for(int i=0; i< nombre_cols/2;i++)
+            printf("worker %d, %lf\n",idx_worker_line, fact_elims[i]);
+        printf("PLOPLPOP\n");
         barrier(CLK_LOCAL_MEM_FENCE);
         barrier(CLK_GLOBAL_MEM_FENCE);
         idx_worker_line = idx_worker;//+(idx_ligne*nombre_cols);   //   !!!!
@@ -80,11 +91,15 @@ __kernel void compute_line(__global int* nb_cols,__global double* fact_elims,__g
         barrier(CLK_GLOBAL_MEM_FENCE);
         while(idx_worker_line<nombre_cols*(nombre_cols/2))
         {
+            barrier(CLK_LOCAL_MEM_FENCE);
+            barrier(CLK_GLOBAL_MEM_FENCE);
             if((int)(idx_worker_line/nombre_cols) != idx_ligne){
                 //printf("indice de l element de la matrice modifié (elimination) = %d\n",((int)(idx_worker_line/nombre_cols)*nombre_cols)+(idx_worker_line%nombre_cols));
                 printf("Etape %d --- ligne %d --- worker -- %d -- fact elim %lf ::: %lf - %lf * %lf\n",idx_ligne,idx_worker_line/nombre_cols,idx_worker_line, fact_elims[(int)(idx_worker_line/nombre_cols)],outputMat[((int)(idx_worker_line/nombre_cols)*nombre_cols)+(idx_worker_line%nombre_cols)],fact_elims[(int)(idx_worker_line/nombre_cols)], outputMat[(idx_ligne*nombre_cols)+(idx_worker_line%nombre_cols)]);
                 //outputMat[((int)(idx_worker_line/nombre_cols)*nombre_cols)+(idx_worker_line%nombre_cols)] -= fact_elims[(int)(idx_worker_line/nombre_cols)] * outputMat[(idx_ligne*nombre_cols)+(idx_worker_line%nombre_cols)];
                 outputMat[idx_worker_line] -= fact_elims[(int)(idx_worker_line/nombre_cols)] * outputMat[(idx_ligne*nombre_cols)+(idx_worker_line%nombre_cols)];
+                barrier(CLK_LOCAL_MEM_FENCE);
+                barrier(CLK_GLOBAL_MEM_FENCE);
             }
             barrier(CLK_LOCAL_MEM_FENCE);
             barrier(CLK_GLOBAL_MEM_FENCE);
