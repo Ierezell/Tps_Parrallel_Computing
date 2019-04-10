@@ -8,8 +8,8 @@ __kernel void compute_line(__global int* nb_cols,__global double* fact_elims,__g
     __private double val_pivot;
 
 
-    unsigned int worker_copy = 6
-    idx_worker;
+    unsigned int worker_copy =86
+                              idx_worker;
     while(worker_copy < nombre_cols*(nombre_cols/2))
     {
         outputMat[worker_copy] = inputMat[worker_copy];
