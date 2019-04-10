@@ -31,19 +31,19 @@ int main(int argc, char **argv)
 
     MatrixRandom matrice(taille_mat, taille_mat);
 
-    matrice(0, 0) = 3;
-    matrice(0, 1) = 2;
-    matrice(0, 2) = 4;
-    matrice(0, 3) = 12;
-    matrice(0, 4) = 5;
-    matrice(1, 0) = 6;
-    matrice(1, 1) = 8;
-    matrice(1, 2) = 7;
-    matrice(1, 3) = 9;
-    matrice(1, 4) = 11;
-    matrice(2, 0) = 10;
-    matrice(2, 1) = 13;
-    matrice(2, 2) = 14;
+    matrice(0, 0) = 4;
+    matrice(0, 1) = 7;
+    matrice(0, 2) = 5;
+    matrice(0, 3) = 9;
+    matrice(0, 4) = 6;
+    matrice(1, 0) = 8;
+    matrice(1, 1) = 10;
+    matrice(1, 2) = 11;
+    matrice(1, 3) = 12;
+    matrice(1, 4) = 13;
+    matrice(2, 0) = 14;
+    matrice(2, 1) = 2;
+    matrice(2, 2) = 3;
     matrice(2, 3) = 15;
     matrice(2, 4) = 16;
     matrice(3, 0) = 17;
@@ -254,7 +254,7 @@ int main(int argc, char **argv)
         // // recuperer les donnees calculees dans la memoire du device
         // queue.enqueueReadBuffer(outputMatriceBuffer, CL_TRUE, 0,
         //                         matrice_et_id.rows() * matrice_et_id.cols() * sizeof(cl_double), outputMatriceBuffer);
-        double *matriceOutput = (double *)malloc(matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double));
+        double *matriceOutput = (double *)calloc(matrice_et_id.rows() * matrice_et_id.cols() , sizeof(double));
         queue.enqueueReadBuffer(outputMatriceBuffer, CL_TRUE, 0, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double), matriceOutput);
 
         Matrix matOut(matrice_et_id.rows(), matrice_et_id.cols());
