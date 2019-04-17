@@ -12,16 +12,35 @@
 #include <iostream>
 
 #include "Matrix.hpp"
+#include "Chrono.hpp"
 
-// // pick up device type from compiler command line or from the default type
-// #ifndef DEVICE
-// #define DEVICE CL_DEVICE_TYPE_DEFAULT
-// #endif
+using namespace std;
+
+// Multiplier deux matrices.
+Matrix multiplyMatrix(const Matrix &iMat1, const Matrix &iMat2)
+{
+
+    // vérifier la compatibilité des matrices
+    assert(iMat1.cols() == iMat2.rows());
+    // effectuer le produit matriciel
+    Matrix lRes(iMat1.rows(), iMat2.cols());
+    // traiter chaque rangée
+    for (size_t i = 0; i < lRes.rows(); ++i)
+    {
+        // traiter chaque colonne
+        for (size_t j = 0; j < lRes.cols(); ++j)
+        {
+            lRes(i, j) = (iMat1.getRowCopy(i) * iMat2.getColumnCopy(j)).sum();
+        }
+    }
+    return lRes;
+}
 
 int main(int argc, char **argv)
 {
 
     srand((unsigned)time(NULL));
+    Chrono chron = Chrono();
 
     unsigned int taille_mat = 5;
     if (argc == 2)
@@ -30,37 +49,14 @@ int main(int argc, char **argv)
     }
 
     MatrixRandom matrice(taille_mat, taille_mat);
+    MatrixIdentity matriceInverse(taille_mat);
 
-    // matrice(0, 0) = 4;
-    // matrice(0, 1) = 7;
-    // matrice(0, 2) = 5;
-    // matrice(0, 3) = 9;
-    // matrice(0, 4) = 6;
-    // matrice(1, 0) = 8;
-    // matrice(1, 1) = 10;
-    // matrice(1, 2) = 11;
-    // matrice(1, 3) = 12;
-    // matrice(1, 4) = 13;
-    // matrice(2, 0) = 14;
-    // matrice(2, 1) = 2;
-    // matrice(2, 2) = 3;
-    // matrice(2, 3) = 15;
-    // matrice(2, 4) = 16;
-    // matrice(3, 0) = 17;
-    // matrice(3, 1) = 18;
-    // matrice(3, 2) = 19;
-    // matrice(3, 3) = 20;
-    // matrice(3, 4) = 21;
-    // matrice(4, 0) = 22;
-    // matrice(4, 1) = 23;
-    // matrice(4, 2) = 24;
-    // matrice(4, 3) = 25;
-    // matrice(4, 4) = 26;
     MatrixConcatCols matrice_et_id(matrice, MatrixIdentity(matrice.rows()));
-    std::cout << "Matrice d'entrée : " << std::endl
-              << matrice_et_id << std::endl;
+    // std::cout << "Matrice d'entrée : " << std::endl
+    //           << matrice_et_id << std::endl;
     // Pour les erreurs possibles
     cl_int err = CL_SUCCESS;
+    float tic = chron.get();
     try
     {
         ////////////////////////////////////////
@@ -246,11 +242,14 @@ int main(int argc, char **argv)
         // for (auto i : MAX_WORK_ITEM_SIZES)
         //     std::cout << i << "    ";
         // std::cout << std::endl;
-
-        cl::NDRange globalProblemSize(MAX_COMPUTE_UNITS * MAX_WORK_GROUP_SIZE, 1);
-        cl::NDRange localProblemSize(MAX_WORK_GROUP_SIZE, 1);
-        // cl::NDRange globalProblemSize(16);
-        // cl::NDRange localProblemSize(8);
+        int globalSize = MAX_COMPUTE_UNITS * MAX_WORK_GROUP_SIZE;
+        int localSize = MAX_WORK_GROUP_SIZE;
+        // int globalSize = MAX_COMPUTE_UNITS * 32;
+        // int localSize = 32;
+        cl::NDRange globalProblemSize(globalSize, 1);
+        cl::NDRange localProblemSize(localSize, 1);
+        printf("globalSize = %d\n", globalSize);
+        printf("localSize = %d\n", localSize);
 
         // queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, cl::NullRange);
         // queue.finish();
@@ -297,6 +296,7 @@ int main(int argc, char **argv)
                 matOut(i, j) = matriceOutput[index];
             }
         }
+        float tac = chron.get();
 
         // for (int idx_lignes = 0; idx_lignes < matOut.rows(); idx_lignes++)
         // {
@@ -307,11 +307,23 @@ int main(int argc, char **argv)
         //     }
         // }
 
-        std::cout << "Matrice d'entrée : " << std::endl
-                  << matrice_et_id << std::endl;
-        std::cout << std::endl;
-        std::cout << "Matrice de sortie : " << std::endl
-                  << matOut << std::endl;
+        // On copie la partie droite de la matrice AI ainsi transformée
+        // dans la matrice courante (this).
+        for (unsigned int i = 0; i < matriceInverse.rows(); ++i)
+        {
+            matriceInverse.getRowSlice(i) = matOut.getDataArray()[slice(i * matOut.cols() + matriceInverse.cols(), matriceInverse.cols(), 1)];
+        }
+
+        Matrix res = multiplyMatrix(matrice, matriceInverse);
+
+        // cout << "Matrice d'entrée : " << endl
+        //           << matrice_et_id << endl;
+        // cout << endl;
+        // cout << "Matrice de sortie : " << endl
+        //           << matOut << endl;
+        cout << "Erreur : " << res.getDataArray().sum() - taille_mat << endl
+             << endl;
+        cout << "Temps : " << tac - tic << "secondes" << endl;
 
         // ////////////////////////////////////////
         // //       Clean les allocations  pas possible en c++      //

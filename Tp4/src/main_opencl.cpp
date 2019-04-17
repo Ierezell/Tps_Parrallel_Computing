@@ -12,16 +12,36 @@
 #include <iostream>
 
 #include "Matrix.hpp"
+#include "Chrono.hpp"
 
-// // pick up device type from compiler command line or from the default type
-// #ifndef DEVICE
-// #define DEVICE CL_DEVICE_TYPE_DEFAULT
-// #endif
+using namespace std;
+
+
+// Multiplier deux matrices.
+Matrix multiplyMatrix(const Matrix &iMat1, const Matrix &iMat2)
+{
+
+    // vérifier la compatibilité des matrices
+    assert(iMat1.cols() == iMat2.rows());
+    // effectuer le produit matriciel
+    Matrix lRes(iMat1.rows(), iMat2.cols());
+    // traiter chaque rangée
+    for (size_t i = 0; i < lRes.rows(); ++i)
+    {
+        // traiter chaque colonne
+        for (size_t j = 0; j < lRes.cols(); ++j)
+        {
+            lRes(i, j) = (iMat1.getRowCopy(i) * iMat2.getColumnCopy(j)).sum();
+        }
+    }
+    return lRes;
+}
 
 int main(int argc, char **argv)
 {
 
     srand((unsigned)time(NULL));
+    Chrono chron = Chrono();
 
     unsigned int taille_mat = 5;
     if (argc == 2)
@@ -30,64 +50,42 @@ int main(int argc, char **argv)
     }
 
     MatrixRandom matrice(taille_mat, taille_mat);
+    MatrixIdentity matriceInverse(taille_mat);
 
-    matrice(0, 0) = 4;
-    matrice(0, 1) = 7;
-    matrice(0, 2) = 5;
-    matrice(0, 3) = 9;
-    matrice(0, 4) = 6;
-    matrice(1, 0) = 8;
-    matrice(1, 1) = 10;
-    matrice(1, 2) = 11;
-    matrice(1, 3) = 12;
-    matrice(1, 4) = 13;
-    matrice(2, 0) = 14;
-    matrice(2, 1) = 2;
-    matrice(2, 2) = 3;
-    matrice(2, 3) = 15;
-    matrice(2, 4) = 16;
-    matrice(3, 0) = 17;
-    matrice(3, 1) = 18;
-    matrice(3, 2) = 19;
-    matrice(3, 3) = 20;
-    matrice(3, 4) = 21;
-    matrice(4, 0) = 22;
-    matrice(4, 1) = 23;
-    matrice(4, 2) = 24;
-    matrice(4, 3) = 25;
-    matrice(4, 4) = 26;
+
     MatrixConcatCols matrice_et_id(matrice, MatrixIdentity(matrice.rows()));
-    std::cout << "Matrice d'entrée : " << std::endl
-              << matrice_et_id << std::endl;
+    // cout << "Matrice d'entrée : " << endl
+    //           << matrice_et_id << endl;
     // Pour les erreurs possibles
     cl_int err = CL_SUCCESS;
+    float tic = chron.get();
     try
     {
         ////////////////////////////////////////
         // Liste les plateformes disponibles  //
         ////////////////////////////////////////
-        std::vector<cl::Platform> platforms;
+        vector<cl::Platform> platforms;
         cl::Platform::get(&platforms);
         if (platforms.size() == 0)
         {
-            std::cout << "Pas de plateformes disponibles ! Vérifier vos installations\n";
+            cout << "Pas de plateformes disponibles ! Vérifier vos installations\n";
             return -1;
         }
-        std::cerr << platforms.size() << " Platform(s) found " << std::endl;
+        cerr << platforms.size() << " Platform(s) found " << endl;
         // Affiche les informations sur les plateformes disponibles
         for (int i = 0; i < platforms.size(); i++)
         {
-            std::cout << "\t Platform : " << i << std::endl;
-            std::string infos;
+            cout << "\t Platform : " << i << endl;
+            string infos;
             platforms[i].getInfo((cl_platform_info)CL_PLATFORM_VENDOR, &infos);
-            std::cout << "\t\t Platform is by: " << infos << std::endl;
+            cout << "\t\t Platform is by: " << infos << endl;
             platforms[i].getInfo((cl_platform_info)CL_PLATFORM_NAME, &infos);
-            std::cout << "\t\t Platform driver is : " << infos << std::endl;
+            cout << "\t\t Platform driver is : " << infos << endl;
             platforms[i].getInfo((cl_platform_info)CL_PLATFORM_VERSION, &infos);
-            std::cout << "\t\t Platform version is: " << infos << std::endl;
+            cout << "\t\t Platform version is: " << infos << endl;
         }
-        std::cout << "Using platform 0 " << std::endl
-                  << std::endl;
+        cout << "Using platform 0 " << endl
+                  << endl;
 
         ////////////////////////////////////////
         //          Crée le contexte          //
@@ -98,39 +96,39 @@ int main(int argc, char **argv)
         ////////////////////////////////////////
         //    Liste les devices disponibles   //
         ////////////////////////////////////////
-        std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
+        vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
         // Affiche les infos sur les devices disponibles
-        std::cerr << devices.size() << " Device(s) found " << std::endl;
+        cerr << devices.size() << " Device(s) found " << endl;
         for (int i = 0; i < devices.size(); i++)
         {
-            std::cout << "\t Device : " << i << std::endl;
-            std::string infos;
+            cout << "\t Device : " << i << endl;
+            string infos;
             devices[i].getInfo((cl_device_info)CL_DEVICE_NAME, &infos);
-            std::cout << "\t\t  Device name : " << infos << std::endl;
+            cout << "\t\t  Device name : " << infos << endl;
             devices[i].getInfo((cl_device_info)CL_DEVICE_TYPE, &infos);
-            std::cout << "\t\t  Device type : " << infos << std::endl;
+            cout << "\t\t  Device type : " << infos << endl;
             devices[i].getInfo((cl_device_info)CL_DEVICE_VENDOR, &infos);
-            std::cout << "\t\t  Device vendor is: " << infos << std::endl;
+            cout << "\t\t  Device vendor is: " << infos << endl;
         }
-        std::cout << "Using device 0 " << std::endl
-                  << std::endl;
+        cout << "Using device 0 " << endl
+                  << endl;
 
         ////////////////////////////////////////
         // Charge le fichier des kernels gpu  //
         ////////////////////////////////////////
-        std::ifstream file("./src/compute_line_kernel.cl");
+        ifstream file("./src/compute_line_kernel.cl");
         if (file.is_open() == false)
         {
-            std::cout << "Le fichier de kernel n'est pas loadé !";
+            cout << "Le fichier de kernel n'est pas loadé !";
             return -1;
         }
-        std::string prog(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
-        std::cout << "File ok " << std::endl;
+        string prog(istreambuf_iterator<char>(file), (istreambuf_iterator<char>()));
+        cout << "File ok " << endl;
 
         ////////////////////////////////////////////////////////////
         // Transforme le fichier en source et crée le programme   //
         ////////////////////////////////////////////////////////////
-        cl::Program::Sources source(1, std::make_pair(prog.c_str(), prog.length()));
+        cl::Program::Sources source(1, make_pair(prog.c_str(), prog.length()));
         cl::Program program = cl::Program(context, source);
 
         ////////////////////////////////////////////////////////
@@ -152,10 +150,10 @@ int main(int argc, char **argv)
                     if (status != CL_BUILD_ERROR)
                         continue;
                     // Get the build log
-                    std::string name = dev.getInfo<CL_DEVICE_NAME>();
-                    std::string buildlog = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
-                    std::cerr << "Build log for " << name << ":" << std::endl
-                              << buildlog << std::endl;
+                    string name = dev.getInfo<CL_DEVICE_NAME>();
+                    string buildlog = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(dev);
+                    cerr << "Build log for " << name << ":" << endl
+                              << buildlog << endl;
                 }
             }
             else
@@ -183,15 +181,15 @@ int main(int argc, char **argv)
         cl::Buffer fact_elims(context, CL_MEM_READ_WRITE, taille_cols * sizeof(double));
 
         // Pour les flemmard idem que ci dessus mais le c++ fait tout pour nous
-        // cl::Buffer outputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
-        // cl::Buffer inputMatriceBuffer(std::begin(matrice_et_id.getDataArray()), std::end(matrice_et_id.getDataArray()), true);
+        // cl::Buffer outputMatriceBuffer(begin(matrice_et_id.getDataArray()), end(matrice_et_id.getDataArray()), true);
+        // cl::Buffer inputMatriceBuffer(begin(matrice_et_id.getDataArray()), end(matrice_et_id.getDataArray()), true);
 
         ////////////////////////////////////////
         //  Ecrit les buffer dans la queue    //
         ////////////////////////////////////////
         queue.enqueueWriteBuffer(inputMatriceBuffer, CL_TRUE, 0, matrice_et_id.rows() * matrice_et_id.cols() * sizeof(double), buff_mat);
         queue.enqueueWriteBuffer(nb_cols_buffer, CL_TRUE, 0, sizeof(int), buff_nb_cols);
-        std::cout << "Buffer ok " << std::endl;
+        cout << "Buffer ok " << endl;
 
         ////////////////////////////////////////
         //    Charge le kernel et ses args    //
@@ -202,37 +200,40 @@ int main(int argc, char **argv)
         err |= kernelProg.setArg(3, outputMatriceBuffer);
         if (err != CL_SUCCESS)
         {
-            std::cout << "Set args : Kernel panic ! " << std::endl;
+            cout << "Set args : Kernel panic ! " << endl;
             return -1;
         }
-        std::cout << "Kernel ok " << std::endl;
+        cout << "Kernel ok " << endl;
 
         ////////////////////////////////////////
         // Defini la taille de notre problème //
         ////////////////////////////////////////
         cl_uint MAX_COMPUTE_UNITS;
         devices[0].getInfo((cl_device_info)CL_DEVICE_MAX_COMPUTE_UNITS, &MAX_COMPUTE_UNITS);
-        // std::cout << "1111111  " << MAX_COMPUTE_UNITS << std::endl;
+        // cout << "1111111  " << MAX_COMPUTE_UNITS << endl;
 
         cl_uint MAX_WORK_ITEM_DIMENSIONS;
         devices[0].getInfo((cl_device_info)CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, &MAX_WORK_ITEM_DIMENSIONS);
-        // std::cout << "2222222  " << MAX_WORK_ITEM_DIMENSIONS << std::endl;
+        // cout << "2222222  " << MAX_WORK_ITEM_DIMENSIONS << endl;
 
         size_t MAX_WORK_GROUP_SIZE;
         devices[0].getInfo((cl_device_info)CL_DEVICE_MAX_WORK_GROUP_SIZE, &MAX_WORK_GROUP_SIZE);
-        // std::cout << "3333333  " << MAX_WORK_GROUP_SIZE << std::endl;
+        // cout << "3333333  " << MAX_WORK_GROUP_SIZE << endl;
 
         size_t MAX_WORK_ITEM_SIZES[100];
         devices[0].getInfo((cl_device_info)CL_DEVICE_MAX_WORK_ITEM_SIZES, &MAX_WORK_ITEM_SIZES);
-        // std::cout << "4444444  ";
+        // cout << "4444444  ";
         // for (auto i : MAX_WORK_ITEM_SIZES)
-        //     std::cout << i << "    ";
-        // std::cout << std::endl;
-
-        // cl::NDRange globalProblemSize(MAX_COMPUTE_UNITS * MAX_WORK_GROUP_SIZE, 1);
-        // cl::NDRange localProblemSize(MAX_WORK_GROUP_SIZE, 1);
-        cl::NDRange globalProblemSize(16);
-        cl::NDRange localProblemSize(8);
+        //     cout << i << "    ";
+        // cout << endl;
+        int globalSize = MAX_COMPUTE_UNITS * MAX_WORK_GROUP_SIZE;
+        int localSize = MAX_WORK_GROUP_SIZE;
+        cl::NDRange globalProblemSize(MAX_COMPUTE_UNITS * MAX_WORK_GROUP_SIZE, 1);
+        cl::NDRange localProblemSize(MAX_WORK_GROUP_SIZE, 1);
+        printf("globalSize = %d", globalSize);
+        printf("localSize = %d", localSize);
+        // cl::NDRange globalProblemSize(16);
+        // cl::NDRange localProblemSize(8);
 
         // queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, cl::NullRange);
         // queue.finish();
@@ -246,7 +247,7 @@ int main(int argc, char **argv)
             NULL,
             &event);
         event.wait();
-        std::cout << "Fini GPU " << std::endl;
+        cout << "Fini GPU " << endl;
 
         ////////////////////////////////////////
         //        Build le programme          //
@@ -266,7 +267,7 @@ int main(int argc, char **argv)
                 matOut(i, j) = matriceOutput[index];
             }
         }
-
+        float tac = chron.get();
         // for (int idx_lignes = 0; idx_lignes < matOut.rows(); idx_lignes++)
         // {
         //     for (int idx_lignes_rest = idx_lignes; idx_lignes_rest < matOut.rows(); idx_lignes_rest++)
@@ -275,12 +276,24 @@ int main(int argc, char **argv)
         //             matOut = matOut.swapRows(idx_lignes_rest, idx_lignes);
         //     }
         // }
+        
+        // On copie la partie droite de la matrice AI ainsi transformée
+        // dans la matrice courante (this).
+        for (unsigned int i = 0; i < matriceInverse.rows(); ++i)
+        {
+            matriceInverse.getRowSlice(i) = matOut.getDataArray()[slice(i * matOut.cols() + matriceInverse.cols(), matriceInverse.cols(), 1)];
+        }
 
-        std::cout << "Matrice d'entrée : " << std::endl
-                  << matrice_et_id << std::endl;
-        std::cout << std::endl;
-        std::cout << "Matrice de sortie : " << std::endl
-                  << matOut << std::endl;
+        Matrix res = multiplyMatrix(matrice, matriceInverse);
+
+        // cout << "Matrice d'entrée : " << endl
+        //           << matrice_et_id << endl;
+        // cout << endl;
+        // cout << "Matrice de sortie : " << endl
+        //           << matOut << endl;
+        cout << "Erreur : " << res.getDataArray().sum() - taille_mat << endl
+         << endl;
+        cout << "Temps : " << tac - tic << "secondes" << endl;
 
         // ////////////////////////////////////////
         // //       Clean les allocations  pas possible en c++      //
@@ -298,7 +311,7 @@ int main(int argc, char **argv)
     }
     catch (cl::Error err)
     {
-        std::cerr << "ERROR: " << err.what() << "(" << err.err() << ")" << std::endl;
+        cerr << "ERROR: " << err.what() << "(" << err.err() << ")" << endl;
     }
 }
 
