@@ -31,31 +31,31 @@ int main(int argc, char **argv)
 
     MatrixRandom matrice(taille_mat, taille_mat);
 
-    matrice(0, 0) = 4;
-    matrice(0, 1) = 7;
-    matrice(0, 2) = 5;
-    matrice(0, 3) = 9;
-    matrice(0, 4) = 6;
-    matrice(1, 0) = 8;
-    matrice(1, 1) = 10;
-    matrice(1, 2) = 11;
-    matrice(1, 3) = 12;
-    matrice(1, 4) = 13;
-    matrice(2, 0) = 14;
-    matrice(2, 1) = 2;
-    matrice(2, 2) = 3;
-    matrice(2, 3) = 15;
-    matrice(2, 4) = 16;
-    matrice(3, 0) = 17;
-    matrice(3, 1) = 18;
-    matrice(3, 2) = 19;
-    matrice(3, 3) = 20;
-    matrice(3, 4) = 21;
-    matrice(4, 0) = 22;
-    matrice(4, 1) = 23;
-    matrice(4, 2) = 24;
-    matrice(4, 3) = 25;
-    matrice(4, 4) = 26;
+    // matrice(0, 0) = 4;
+    // matrice(0, 1) = 7;
+    // matrice(0, 2) = 5;
+    // matrice(0, 3) = 9;
+    // matrice(0, 4) = 6;
+    // matrice(1, 0) = 8;
+    // matrice(1, 1) = 10;
+    // matrice(1, 2) = 11;
+    // matrice(1, 3) = 12;
+    // matrice(1, 4) = 13;
+    // matrice(2, 0) = 14;
+    // matrice(2, 1) = 2;
+    // matrice(2, 2) = 3;
+    // matrice(2, 3) = 15;
+    // matrice(2, 4) = 16;
+    // matrice(3, 0) = 17;
+    // matrice(3, 1) = 18;
+    // matrice(3, 2) = 19;
+    // matrice(3, 3) = 20;
+    // matrice(3, 4) = 21;
+    // matrice(4, 0) = 22;
+    // matrice(4, 1) = 23;
+    // matrice(4, 2) = 24;
+    // matrice(4, 3) = 25;
+    // matrice(4, 4) = 26;
     MatrixConcatCols matrice_et_id(matrice, MatrixIdentity(matrice.rows()));
     std::cout << "Matrice d'entrée : " << std::endl
               << matrice_et_id << std::endl;
@@ -247,10 +247,10 @@ int main(int argc, char **argv)
         //     std::cout << i << "    ";
         // std::cout << std::endl;
 
-        // cl::NDRange globalProblemSize(MAX_COMPUTE_UNITS * MAX_WORK_GROUP_SIZE, 1);
-        // cl::NDRange localProblemSize(MAX_WORK_GROUP_SIZE, 1);
-        cl::NDRange globalProblemSize(16);
-        cl::NDRange localProblemSize(8);
+        cl::NDRange globalProblemSize(MAX_COMPUTE_UNITS * MAX_WORK_GROUP_SIZE, 1);
+        cl::NDRange localProblemSize(MAX_WORK_GROUP_SIZE, 1);
+        // cl::NDRange globalProblemSize(16);
+        // cl::NDRange localProblemSize(8);
 
         // queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, cl::NullRange);
         // queue.finish();
