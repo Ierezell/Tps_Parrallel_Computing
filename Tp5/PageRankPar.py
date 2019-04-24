@@ -38,11 +38,11 @@ def pagerankseq(M, numIterations=100, d=0.85):
         v = d * np.matmul(M, v) + (1 - d) / N
     return v
 
-def pagerankspark(M, numIterations=100, d=0.85):
+def pagerankspark(M, numPartitions, numIterations=100, d=0.85):
     N = M.shape[1]
     v = np.ones((N, 1))*1/N
     sc = pyspark.SparkContext("local", "App Name", pyFiles=[])
-    distData = sc.parallelize(v)
+    distData = sc.parallelize(v, numPartitions)
     for i in range(numIterations):
         pass
 
@@ -70,4 +70,4 @@ temps_execution = tac-tic
 print(v)
 print("temps d'execution: "+str(temps_execution)+" secondes")
 
-pagerankspark(create_matrix_from_json("./python.org.json"), 100, 0.85)
+pagerankspark(create_matrix_from_json("./python.org.json"), 8, 100, 0.85)
