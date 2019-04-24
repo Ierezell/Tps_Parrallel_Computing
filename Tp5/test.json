@@ -1,0 +1,7 @@
+[
+    {"id": 0, "url": "http://python.org/", "size": 48163, "neighbors": [4]}, 
+    {"id": 1, "url": "http://python.org/psf-landing/", "size": 49259, "neighbors": [0]},
+    {"id": 2, "url": "http://python.org/jobs/", "size": 76718, "neighbors": [0]},
+    {"id": 3, "url": "http://python.org/community/", "size": 35458, "neighbors": [1,2]}, 
+    {"id": 4, "url": "http://python.org/psf/donans/", "size": 37272, "neighbors": [2,3]}
+]               
