@@ -6,7 +6,9 @@
 
 import numpy as np
 import json
+from random import random
 import pyspark
+from time import time
 
 graph = [{'id': 0, 'neighbors': [4]},
          {'id': 1, 'neighbors': [0]},
@@ -40,9 +42,6 @@ def create_matrix_from_graph(graph: dict) -> np.array:
     return M
 
 
-print(create_matrix_from_graph(graph))
-
-
 def pagerank(M, eps=1.0e-8, d=0.85):
     N = M.shape[1]
     v = np.random.rand(N, 1)
@@ -65,7 +64,7 @@ def pagerank2(M, eps=1.0e-8, d=0.85):
     return v
 
 
-NUM_SAMPLE = 10000
+NUM_SAMPLE = 100000000
 
 
 def sample(p):
@@ -77,9 +76,17 @@ def reduce_func(a, b):
     return a+b
 
 
-sc = pyspark.SparkContext("local", "App Name", pyFiles=[])
-# sc = SparkContext()
+tic = time()
+sc = pyspark.SparkContext()
 trials = sc.range(0, NUM_SAMPLE)
 in_circle = trials.map(sample)
 pi = in_circle.reduce(reduce_func)*4/NUM_SAMPLE
-print(f"pi = {pi}")
+tac = time()
+print(f"pi1 = {pi} en {tac-tic}s")
+tic = time()
+count = 0
+for _ in range(NUM_SAMPLE):
+    x, y = random(), random()
+    count += 1 if x**2+y**2 < 1 else 0
+tac = time()
+print(f"pi2 = {count*4/NUM_SAMPLE} en {tac-tic}s")
