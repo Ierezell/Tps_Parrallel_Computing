@@ -6,7 +6,8 @@
 
 import numpy as np
 import json
-
+import time
+from tools import *
 
 graph = [{'id': 0, 'neighbors': [4]},
          {'id': 1, 'neighbors': [0]},
@@ -14,30 +15,6 @@ graph = [{'id': 0, 'neighbors': [4]},
          {'id': 3, 'neighbors': [1, 2]},
          {'id': 4, 'neighbors': [2, 3]}]
 
-
-def load_json(path_json: str) -> dict:
-    with open('python.org.json') as json_file:
-        graph = json.load(json_file)
-    return graph
-
-
-def create_matrix_from_json(path_json: str) -> np.array:
-    graph = load_json(path_json)
-    M = np.zeros((len(graph), len(graph)))
-    for site in graph:
-        for neighbors in site['neighbors']:
-            M[site['id'], neighbors] += 1
-    M /= M.sum(axis=0)
-    return M
-
-
-def create_matrix_from_graph(graph: dict) -> np.array:
-    M = np.zeros((len(graph), len(graph)))
-    for site in graph:
-        for neighbors in site['neighbors']:
-            M[site['id'], neighbors] += 1
-    M /= M.sum(axis=0)
-    return M
 
 
 print(create_matrix_from_graph(graph))
@@ -64,8 +41,25 @@ def pagerank2(M, eps=1.0e-8, d=0.85):
         v = d * np.matmul(M, v) + (1 - d) / N
     return v
 
+def pagerank3(M, numIterations=100, d=0.85):
+    N = M.shape[1]
+    v = np.ones((N, 1))*1/N
+    for i in range(numIterations):
+        last_v = v
+        v = d * np.matmul(M, v) + (1 - d) / N
+    return v
 
-v = pagerank(create_matrix_from_graph(graph), 0.001, 0.85)
-v2 = pagerank2(create_matrix_from_graph(graph), 0.001, 0.85)
-print(v.reshape(-1))
+tic = time.clock()
+v = pagerank3(create_matrix_from_json("./python.org.json"), 100, 0.85)
+v = v.reshape(-1)
+v = sorted(v, reverse = True)
+tac = time.clock()
+temps_execution = tac-tic
+print(v)
+print("temps d'execution: "+str(temps_execution)+" secondes")
+
+
+v2 = pagerank2(create_matrix_from_graph(graph), 0.0001, 0.85)
+
 print(v2.reshape(-1))
+
