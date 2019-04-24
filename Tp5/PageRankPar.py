@@ -27,7 +27,8 @@ if __name__ == "__main__":
     nbUrls = id_et_Neighs.count()
     ranks = id_et_Neighs.map(lambda url_neighbors: (url_neighbors[0], 1.0/nbUrls)).cache()
 
-    for _ in range(5):
+    for i in range(5):
+        print(i)
         contribs = id_et_Neighs.join(ranks).flatMap(
              lambda urls_et_rank: computeContribs(urls_et_rank[1][0], 
                                                     urls_et_rank[1][1]))
@@ -36,9 +37,13 @@ if __name__ == "__main__":
             lambda rank: d*rank + ((1-d)/nbUrls))
     ranks_sorted = ranks.sortBy(lambda pair: pair[1],ascending=False ).collect()
 
+    # for (link, rank) in ranks_sorted:
+    #     print(f"{idToUrl[link]} {rank}")
+
     for (link, rank) in ranks_sorted:
-        print(f"{idToUrl[link]} {rank}")
+        print(rank)
 
     tic = datetime.datetime.now()
+
     printTime(tac,tic)
     
